@@ -1,0 +1,70 @@
+baseURL = "http://localhost:1313/"
+languageCode = "en-us"
+title = "KVV's blog"
+theme = "loficode-hugo-theme"
+
+enableEmoji = true
+
+[outputs]
+  home = ["HTML", "JSON", "pages"]
+  page = ["HTML"]
+  section = ["HTML"]
+
+[outputFormats]
+  [outputFormats.JSON]
+    mediaType = "application/json"
+    baseName = "index"
+    isPlainText = true
+  [outputFormats.pages]
+    mediaType = "application/json"
+    baseName = "pages"
+    isPlainText = true
+
+[pagination]
+  pagerSize = 6
+  path = "page"
+
+[params]
+  description = "KVV's blog on the LofiCode theme."
+  tagline = "Cozy pages with a clean image workflow."
+  profile_photo = "site-images/profile.png"
+
+  [params.author]
+    name = "KVV's blog"
+    image = "site-images/profile.png"
+
+  [params.profile]
+    name = "KVV's blog"
+    tagline = "Cozy pages with a clean image workflow."
+    photo = "/site-images/profile.png"
+
+  [params.images]
+    profile = "site-images/profile.png"
+    hero = "site-images/hero.png"
+
+[markup]
+  [markup.highlight]
+    style = "dracula"
+    lineNos = true
+    lineNumbersInTable = false
+    tabWidth = 2
+    noClasses = false
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+[[menu.main]]
+  name = "About"
+  url = "/about/"
+  weight = 10
+
+[[menu.main]]
+  name = "Posts"
+  url = "/posts/"
+  weight = 20
+
+[[menu.main]]
+  name = "Contact"
+  url = "/contact/"
+  weight = 30

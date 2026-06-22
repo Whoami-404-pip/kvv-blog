@@ -1,0 +1,13 @@
+{{- $src := .Get "src" | default (.Get 0) -}}
+{{- $alt := .Get "alt" | default (.Get 1) | default "" -}}
+{{- $caption := .Get "caption" | default (.Get 2) -}}
+{{- $class := .Get "class" | default (.Get 3) -}}
+{{- if not $src -}}
+{{- errorf "site-image shortcode requires a src argument" -}}
+{{- end -}}
+<figure class="site-image{{ with $class }} {{ . }}{{ end }}">
+  <img src="{{ printf "/site-images/%s" $src | relURL }}" alt="{{ $alt }}" loading="lazy" />
+  {{- with $caption }}
+  <figcaption>{{ . | markdownify }}</figcaption>
+  {{- end }}
+</figure>
