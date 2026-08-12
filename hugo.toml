@@ -26,7 +26,7 @@ enableEmoji = true
 
 [params]
   description = "KVV's blog on the LofiCode theme."
-  tagline = "Cozy pages with a clean image workflow."
+  tagline = "Hi! I'm an adventurer, chasing ideas across security, AI, and research."
   profile_photo = "site-images/profile.png"
 
   [params.author]
@@ -35,7 +35,7 @@ enableEmoji = true
 
   [params.profile]
     name = "KVV's blog"
-    tagline = "Cozy pages with a clean image workflow."
+    tagline = "Hi! I'm an adventurer, chasing ideas across security, AI, and research."
     photo = "/site-images/profile.png"
 
   [params.images]
