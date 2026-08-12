@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en-us" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>
+  Interpretable Credit Risk Scoring with WOE and Logistic Regression - KVV&#39;s blog
+</title>
+
+
+
+<meta name="description" content="Project: Credit Risk Scoring and Decision Support System
+Team: Porsche Club, AIO Conquer
+Contributors: Trần Phương Bình, Đào Trung Can, Cao Bá Hoàng, Nguyễn …" />
+
+
+
+<meta
+  property="og:title"
+  content="Interpretable Credit Risk Scoring with WOE and Logistic Regression"
+/>
+<meta
+  property="og:description"
+  content="Project: Credit Risk Scoring and Decision Support System
+Team: Porsche Club, AIO Conquer
+Contributors: Trần Phương Bình, Đào Trung Can, Cao Bá Hoàng, Nguyễn …"
+/>
+<meta
+  property="og:type"
+  content="article"
+/>
+<meta property="og:url" content="http://localhost:1313/posts/credit-score-model/" />
+<meta property="og:site_name" content="KVV&#39;s blog" />
+
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta
+  name="twitter:title"
+  content="Interpretable Credit Risk Scoring with WOE and Logistic Regression"
+/>
+<meta
+  name="twitter:description"
+  content="Project: Credit Risk Scoring and Decision Support System
+Team: Porsche Club, AIO Conquer
+Contributors: Trần Phương Bình, Đào Trung Can, Cao Bá Hoàng, Nguyễn …"
+/>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap"
+  rel="stylesheet"
+/>
+
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+
+
+<link rel="stylesheet" href="http://localhost:1313/css/style.css">
+
+
+
+</head>
+<body>
+    
+    <div class="reading-progress"></div>
+    
+
+    
+
+    <main>
+        
+
+<div class="post-overlay active">
+    <div class="post-overlay-backdrop"></div>
+    <div class="post-overlay-content" style="position: relative; min-height: 100vh; padding: 0; transform: translateY(0);">
+        <div class="post-overlay-header">
+            <div class="post-overlay-title">
+                <a href="/" class="overlay-site-title">KVV&#39;s blog</a>
+            </div>
+            <button class="post-overlay-close" aria-label="Close post" onclick="window.location.href='/'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="post-layout">
+        <article class="post-content">
+            <header class="post-header">
+                <div class="post-meta">
+                    <span class="post-date">2026.07.15</span>
+                    <div class="reading-time-post">
+                        <span class="coffee-cups">
+                            
+                            
+                            
+                            
+                                
+                            
+                            
+                                
+                            
+                                
+                            
+                                
+                            
+                                
+                            
+                                
+                            
+                            ☕☕☕☕☕
+                        </span>
+                        <span>38 min read</span>
+                    </div>
+                </div>
+                <h1 class="post-title">Interpretable Credit Risk Scoring with WOE and Logistic Regression</h1>
+                
+                <p class="post-subtitle">Model development, scorecard scaling, QA remediation, and deployment evidence</p>
+                
+
+                
+                <div class="post-tags-header">
+                    
+                    <a href="http://localhost:1313/tags/ai" class="post-tag">AI</a>
+                    
+                    <a href="http://localhost:1313/tags/machine-learning" class="post-tag">machine learning</a>
+                    
+                    <a href="http://localhost:1313/tags/credit-risk" class="post-tag">credit risk</a>
+                    
+                    <a href="http://localhost:1313/tags/mlops" class="post-tag">MLOps</a>
+                    
+                </div>
+                
+            </header>
+            <div class="post-body">
+                <p><strong>Project:</strong> Credit Risk Scoring and Decision Support System<br>
+<strong>Team:</strong> Porsche Club, AIO Conquer<br>
+<strong>Contributors:</strong> Trần Phương Bình, Đào Trung Can, Cao Bá Hoàng, Nguyễn Tùng, Vũ Khánh Vy<br>
+<strong>My role:</strong> QA / Reviewer<br>
+<strong>Repository:</strong> <a href="https://github.com/Whoami-404-pip/Credit-Score-Model">Whoami-404-pip/Credit-Score-Model</a></p>
+<blockquote>
+<p>This article is a project report written in the style of a small technical paper. It documents an educational, deployment-oriented prototype. It is not a peer-reviewed study, a bank-approved model, or a recommendation to automate real lending decisions.</p>
+</blockquote>
+<h2 id="abstract">Abstract</h2>
+<p>Credit risk models operate in a setting where predictive performance is only one part of model quality. A useful lending model must also respect the time at which information becomes available, preserve a traceable relationship between input evidence and output decisions, avoid learning transformations from the evaluation population, and produce artifacts that can be reproduced outside the development notebook. This report presents an end-to-end credit scorecard developed from a public dataset containing 32,581 consumer loan records. The system combines data-quality controls, optimal binning, Weight of Evidence transformation, Information Value screening, logistic regression, conventional points-to-double-the-odds scaling, artifact packaging, and a Streamlit decision-support interface.</p>
+<p>Three candidate feature sets were evaluated. The statistically strongest candidate reached an out-of-fold AUC of 0.88270, but it contained <code>loan_grade</code> and <code>loan_int_rate</code>, variables whose timing may be incompatible with a pre-decision application workflow. The final champion was therefore selected from the business-eligible candidates using stratified ten-fold cross-validation and a one-standard-error rule. It retained seven variables available before the proposed underwriting decision: income, home ownership, employment length, loan intent, loan amount, loan-to-income ratio, and prior default history. On an untouched 20% holdout set, the selected model achieved ROC AUC 0.83197, Gini 0.66394, KS 0.50109, Brier score 0.11289, and log loss 0.37090. Calibration intercept and slope were 0.0357 and 1.0386, respectively.</p>
+<p>The project also illustrates why an apparently strong score can be misleading without QA. Earlier development artifacts contained target leakage, inconsistent feature contracts, stale notebook state, and an incorrect score mapping that could differ from the probability-based formula by more than 300 points. The current public pipeline repairs the principal test-leakage and score-identity failures, but important threats remain: duplicate records can cross the random split, anomaly removal disproportionately excludes defaults, the inner cross-validation is not fully nested with respect to WOE fitting, and no out-of-time, external, fairness, or economic validation has been completed. The result should therefore be interpreted as a reproducible scorecard prototype and a case study in model governance, not as a production credit policy.</p>
+<p><strong>Keywords:</strong> credit risk, credit scorecard, Weight of Evidence, optimal binning, logistic regression, calibration, model validation, data leakage, MLOps</p>
+<h2 id="1-introduction">1. Introduction</h2>
+<p>A credit scoring system estimates whether a borrower is likely to experience an adverse credit event, such as default, within a defined performance window. The estimate is commonly used to rank applications, define review queues, support pricing, or contribute to an approval policy. In a classroom exercise it is tempting to reduce the task to a leaderboard metric: train several classifiers, report the highest AUC, and stop. In a real decision process, that is insufficient.</p>
+<p>The model must answer at least five additional questions. First, which information was actually available when the prediction would have been made? Second, were all preprocessing and feature engineering objects learned without seeing the evaluation target? Third, can the output be explained in terms that an analyst can audit? Fourth, can the exact training transformation be applied consistently to one new applicant and to a batch portfolio? Fifth, do the reported metrics support the business claims being made?</p>
+<p>Traditional scorecards remain useful because they provide a relatively direct answer to these questions. Continuous and categorical variables are grouped into risk bins, each bin is represented by Weight of Evidence, and a logistic regression combines those values into a probability of default. The log-odds can then be mapped to a familiar points scale. This design does not guarantee validity, but it makes the model easier to inspect than a system whose feature interactions and transformations are hidden across separate notebooks and application code.</p>
+<p>This project was developed by the Porsche Club team in the AIO Conquer program. The work covered exploratory analysis, model development, pipeline engineering, scorecard construction, artifact management, interface development, and QA review. My contribution focused on checking whether the code, documentation, notebooks, and generated artifacts told the same story. That review changed the emphasis of the final report. The main lesson was not that logistic regression is a novel algorithm. It was that a credible model result depends on a chain of evidence extending from source data to deployment behavior.</p>
+<h3 id="11-research-questions">1.1 Research questions</h3>
+<p>The study was organized around the following questions:</p>
+<ol>
+<li>Can an interpretable WOE-logistic scorecard provide useful discrimination and probability estimates on the public credit risk dataset?</li>
+<li>How much apparent performance is lost when variables with questionable decision-time availability are excluded?</li>
+<li>Can model selection favor a simpler, business-eligible model without selecting solely by the largest AUC?</li>
+<li>Does the final score preserve the mathematical relationship between default probability, odds, and score points?</li>
+<li>Which validity risks remain after leakage remediation and artifact synchronization?</li>
+</ol>
+<h3 id="12-contributions">1.2 Contributions</h3>
+<p>The practical contributions of the project are:</p>
+<ul>
+<li>a documented dataset audit covering missingness, anomalous values, duplicate contamination, and target balance;</li>
+<li>a train/test pipeline that freezes cleaning, WOE, feature selection, regression, and score scaling artifacts;</li>
+<li>an explicit comparison between a high-performing statistical benchmark and pre-decision feature sets;</li>
+<li>a conventional scorecard transformation with numerical identity checks;</li>
+<li>holdout evaluation of discrimination, calibration, probability error, and score-band ordering;</li>
+<li>a Streamlit interface supporting single-application and CSV batch scoring;</li>
+<li>a QA record showing which earlier results were rejected, which defects were repaired, and which risks remain open.</li>
+</ul>
+<h2 id="2-problem-formulation-and-scorecard-theory">2. Problem Formulation and Scorecard Theory</h2>
+<h3 id="21-binary-default-prediction">2.1 Binary default prediction</h3>
+<p>Let <code>Y = 1</code> indicate a bad outcome or default and <code>Y = 0</code> indicate a good outcome. For applicant features <code>X</code>, the model estimates:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">PD(X) = P(Y = 1 | X)
+</span></span></code></pre></div><p>Logistic regression represents the log-odds of default as an additive function:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">logit(PD) = ln(PD / (1 - PD))
+</span></span><span class="line"><span class="ln">2</span><span class="cl">          = beta_0 + beta_1 x_1 + ... + beta_k x_k
+</span></span></code></pre></div><p>The logistic link constrains the resulting probability to the interval from zero to one. More importantly for scorecards, the additive log-odds representation can be converted into additive points. Each feature can contribute a visible increase or decrease to the final score.</p>
+<p>Raw lending variables are rarely linear in risk. A moderate loan amount might be acceptable for a high-income applicant but dangerous for a low-income applicant. Employment length may reduce risk until additional years provide little new information. Categorical variables such as home ownership and loan purpose have no natural numeric spacing. The project addresses these problems through supervised binning and WOE transformation.</p>
+<h3 id="22-optimal-binning">2.2 Optimal binning</h3>
+<p>Optimal binning partitions a variable into groups whose outcome distributions are sufficiently distinct while satisfying constraints on size and shape. The project configuration used CART pre-binning, a constraint-programming solver, a maximum of 20 pre-bins, a minimum bin share of 5%, no more than six final bins, and automatic monotonic trend detection.</p>
+<p>The constraints serve several purposes. Very small bins create unstable estimates and are difficult to explain. Too many bins can reproduce sample noise rather than a durable risk relationship. A monotonic trend is not always required, but it is often desirable because a scorecard becomes easier to defend when worsening financial conditions do not produce arbitrary reversals in assigned risk.</p>
+<p>Missing values are not silently replaced by a global number inside the scorecard. When supported by the preprocessing mode and binning object, missing observations can form a separate bin. This allows missingness to carry its own empirical risk signal. Whether that behavior is appropriate depends on why the value is absent, so the missing bin must still be monitored after deployment.</p>
+<h3 id="23-weight-of-evidence">2.3 Weight of Evidence</h3>
+<p>For bin <code>j</code>, this project uses the good-over-bad WOE convention:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">WOE_j = ln(DistGood_j / DistBad_j)
+</span></span></code></pre></div><p>where <code>DistGood_j</code> is the proportion of all good observations falling into bin <code>j</code>, and <code>DistBad_j</code> is the equivalent proportion among defaults. A positive WOE indicates that the bin contains a relatively larger share of good accounts. A negative WOE indicates concentration of bad accounts.</p>
+<p>The sign convention matters. With good-over-bad WOE, a safer bin receives a larger WOE value. The final model coefficients are negative, so an increase in WOE reduces the modeled log-odds of default. That direction is internally coherent:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">safer evidence -&gt; higher WOE -&gt; lower logit(PD) -&gt; lower PD -&gt; higher score
+</span></span></code></pre></div><p>WOE is useful because it converts non-linear risk patterns into a representation that a linear model can use, handles categorical and numerical variables through a common interface, and produces bin-level contributions that can be translated into score points. It is not automatically safe from leakage. Because WOE uses target distributions, its bin boundaries and values must be learned only from the appropriate training population.</p>
+<h3 id="24-information-value">2.4 Information Value</h3>
+<p>Information Value summarizes the separation produced by a variable across its bins:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">IV = sum_j (DistGood_j - DistBad_j) * WOE_j
+</span></span></code></pre></div><p>The pipeline treated IV below 0.02 as weak and IV above 1.0 as suspicious or potentially unstable. These are screening heuristics, not universal scientific laws. A high IV may reflect a genuinely strong signal, but it may also indicate a proxy for the target, a post-outcome field, or a data-generation artifact. For that reason, statistical screening was followed by a decision-time eligibility review.</p>
+<h3 id="25-why-logistic-regression">2.5 Why logistic regression</h3>
+<p>The selected estimator is deliberately conservative. Gradient boosting or a larger ensemble may achieve higher discrimination, but the scorecard had four priorities: interpretability, additive explanations, stable artifact serialization, and a transparent relationship between probability and score. Logistic regression also provides standard errors, confidence intervals, odds ratios, and sign checks that support a structured model audit.</p>
+<p>This choice does not imply that logistic regression is always preferable. A fair benchmark would compare it against non-linear models using the same leakage controls and temporal validation. That experiment was outside the final scope. The conclusions in this report therefore concern the quality of this scorecard implementation, not the superiority of scorecards over all alternatives.</p>
+<h2 id="3-dataset-and-data-audit">3. Dataset and Data Audit</h2>
+<h3 id="31-source-data">3.1 Source data</h3>
+<p>The public Credit Risk Dataset contains 32,581 rows, eleven predictors, and the target <code>loan_status</code>. The target uses <code>0</code> for a good loan and <code>1</code> for default. The raw class distribution is:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Outcome</th>
+          <th style="text-align: right">Records</th>
+          <th style="text-align: right">Share</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Good loans</td>
+          <td style="text-align: right">25,473</td>
+          <td style="text-align: right">78.18%</td>
+      </tr>
+      <tr>
+          <td>Defaults</td>
+          <td style="text-align: right">7,108</td>
+          <td style="text-align: right">21.82%</td>
+      </tr>
+      <tr>
+          <td>Total</td>
+          <td style="text-align: right">32,581</td>
+          <td style="text-align: right">100.00%</td>
+      </tr>
+  </tbody>
+</table>
+<p>The default rate of 21.82% is high enough to provide a substantial positive class, but it still requires stratification so that train and test partitions preserve comparable event rates.</p>
+<h3 id="32-variable-inventory">3.2 Variable inventory</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Variable</th>
+          <th>Type</th>
+          <th>Meaning</th>
+          <th>Proposed pre-decision use</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>person_age</code></td>
+          <td>numeric</td>
+          <td>Applicant age</td>
+          <td>Available, but not selected</td>
+      </tr>
+      <tr>
+          <td><code>person_income</code></td>
+          <td>numeric</td>
+          <td>Annual income</td>
+          <td>Selected</td>
+      </tr>
+      <tr>
+          <td><code>person_home_ownership</code></td>
+          <td>categorical</td>
+          <td>Rent, mortgage, own, or other</td>
+          <td>Selected</td>
+      </tr>
+      <tr>
+          <td><code>person_emp_length</code></td>
+          <td>numeric</td>
+          <td>Employment length in years</td>
+          <td>Selected</td>
+      </tr>
+      <tr>
+          <td><code>loan_intent</code></td>
+          <td>categorical</td>
+          <td>Stated purpose of the loan</td>
+          <td>Selected</td>
+      </tr>
+      <tr>
+          <td><code>loan_grade</code></td>
+          <td>categorical</td>
+          <td>Assigned loan grade</td>
+          <td>Excluded from champion due timing concern</td>
+      </tr>
+      <tr>
+          <td><code>loan_amnt</code></td>
+          <td>numeric</td>
+          <td>Requested loan amount</td>
+          <td>Selected</td>
+      </tr>
+      <tr>
+          <td><code>loan_int_rate</code></td>
+          <td>numeric</td>
+          <td>Interest rate</td>
+          <td>Excluded from champion due timing concern</td>
+      </tr>
+      <tr>
+          <td><code>loan_percent_income</code></td>
+          <td>numeric</td>
+          <td>Loan amount divided by income</td>
+          <td>Selected</td>
+      </tr>
+      <tr>
+          <td><code>cb_person_default_on_file</code></td>
+          <td>categorical</td>
+          <td>Prior default indicator</td>
+          <td>Selected</td>
+      </tr>
+      <tr>
+          <td><code>cb_person_cred_hist_length</code></td>
+          <td>numeric</td>
+          <td>Credit history length</td>
+          <td>Available, but not selected</td>
+      </tr>
+      <tr>
+          <td><code>loan_status</code></td>
+          <td>binary target</td>
+          <td>Observed good or default outcome</td>
+          <td>Never an input feature</td>
+      </tr>
+  </tbody>
+</table>
+<p>The decision-time column is essential. A variable can be highly predictive and still be unusable if it is created by the underwriting process that the model is supposed to support. <code>loan_grade</code> is an obvious example: if an internal grade is assigned after a credit decision, using it as an input creates circular logic. <code>loan_int_rate</code> may also be determined only after pricing or grade assignment. The project therefore retained them in a statistical benchmark but excluded them from the final pre-decision candidate.</p>
+<h3 id="33-missing-data-and-anomalous-values">3.3 Missing data and anomalous values</h3>
+<p>Two raw fields contain missing values:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Variable</th>
+          <th style="text-align: right">Missing records</th>
+          <th style="text-align: right">Raw share</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>person_emp_length</code></td>
+          <td style="text-align: right">895</td>
+          <td style="text-align: right">2.75%</td>
+      </tr>
+      <tr>
+          <td><code>loan_int_rate</code></td>
+          <td style="text-align: right">3,116</td>
+          <td style="text-align: right">9.56%</td>
+      </tr>
+  </tbody>
+</table>
+<p>Exploratory checks also found five ages greater than 100 and implausibly large employment lengths. The notebook-matching preparation removes rows with missing employment length and the extreme age or employment conditions. This produces a modeling population of 31,679 records, a reduction of 902 rows.</p>
+<p>The resulting cleaned ranges were plausible for most fields: age from 20 to 94, annual income from 4,000 to 2,039,784, employment length from 0 to 41 years, loan amount from 500 to 35,000, interest rate from 5.42% to 23.22%, loan-to-income ratio from 0 to 0.83, and credit history length from 2 to 30 years. After the row filtering, 3,047 interest-rate values remained missing.</p>
+<p>The removal is reproducible, but it is not neutral. Of the 902 excluded records, 619 were good and 283 were bad. The excluded cohort therefore had a bad rate of 31.37%, compared with 21.54% in the retained modeling population. Hard-dropping these rows removes a disproportionately risky group and can make the resulting sample easier than the raw population. A production-oriented policy should investigate the data-generation reason, retain the records where possible, and model missingness explicitly rather than treat replication of the notebook as evidence that the rule is optimal.</p>
+<p>For this reason, the codebase exposes two modes:</p>
+<ul>
+<li><code>notebook_match</code> reproduces the historical experiment by applying the hard-drop rules;</li>
+<li><code>mlops_optimized</code> retains the broader population and relies on capping and binning behavior intended for a more robust serving path.</li>
+</ul>
+<p>The public configuration defaults to <code>notebook_match</code> so that published metrics can be reproduced. The name should not be interpreted as a claim that this mode is the correct production population definition.</p>
+<h3 id="34-duplicate-contamination">3.4 Duplicate contamination</h3>
+<p>QA review of the local <code>cleaned_dataset.csv</code> found 157 additional duplicated rows, with 314 rows participating in duplicate groups when both copies are counted. Because the final experiment uses a random row split and the notebook-matching path does not deduplicate the population, identical full-row signatures can appear in both training and test data.</p>
+<p>In the audited 80/20 split, 44 full-row signatures crossed the train/test boundary. Earlier multi-partition experiments showed the same pattern across train, validation, and test sets. This does not necessarily mean that every repeated row represents the same real person; the public data has no stable borrower identifier with which to prove entity identity. It does mean that the evaluation can contain exact records already represented in training, which weakens the independence assumption and can slightly inflate apparent holdout performance.</p>
+<p>A stronger protocol would define a duplicate policy before splitting, preserve a stable entity key when available, and use group-aware partitioning if multiple loans can belong to the same borrower. Because this was not completed in the current release, the reported test metrics should be read with that limitation attached.</p>
+<h3 id="35-derived-ratio-consistency">3.5 Derived ratio consistency</h3>
+<p>The dataset includes <code>loan_percent_income</code>, but the same concept can be recomputed as <code>loan_amnt / person_income</code>. Comparing the supplied and recomputed values showed small differences for most records, consistent with rounding: 28,370 rows differed at any numerical precision, but only 905 differed by more than 0.005 and 385 by more than 0.01. The maximum absolute difference was approximately 0.0934.</p>
+<p>This check matters because training and inference must use the same definition. If training consumes the source ratio while the application recomputes a higher-precision ratio, applicants near a bin boundary can receive a different WOE and score. The two preprocessing modes therefore need an explicit feature contract: either preserve the source field for notebook reproduction or recompute it consistently in both training and inference. Silent mixing of the two definitions is not acceptable.</p>
+<h3 id="36-final-modeling-population-and-split">3.6 Final modeling population and split</h3>
+<p>After notebook-matching filters, the modeling population contained 31,679 records:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Partition</th>
+          <th style="text-align: right">Records</th>
+          <th style="text-align: right">Share</th>
+          <th style="text-align: right">Bad rate</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Train</td>
+          <td style="text-align: right">25,343</td>
+          <td style="text-align: right">80%</td>
+          <td style="text-align: right">21.54%</td>
+      </tr>
+      <tr>
+          <td>Test</td>
+          <td style="text-align: right">6,336</td>
+          <td style="text-align: right">20%</td>
+          <td style="text-align: right">21.54%</td>
+      </tr>
+      <tr>
+          <td>Total</td>
+          <td style="text-align: right">31,679</td>
+          <td style="text-align: right">100%</td>
+          <td style="text-align: right">21.54%</td>
+      </tr>
+  </tbody>
+</table>
+<p>The split used <code>random_state=42</code> with target stratification. The test target was not used for feature selection, coefficient fitting, threshold tuning for the champion model, or score scaling. However, this is a random holdout from the same source population, not an out-of-time sample. It measures within-dataset generalization under the stated caveats, not temporal stability.</p>
+<h2 id="4-development-history-and-qa-remediation">4. Development History and QA Remediation</h2>
+<h3 id="41-why-model-lineage-matters">4.1 Why model lineage matters</h3>
+<p>The local Module 2 folder contains exploratory notebooks, candidate datasets, methodology documents, confusion-matrix analysis, framework notes, QA reports, and snapshots created at different stages. These files are valuable evidence, but they do not all describe the same model. Treating every metric in the folder as current would combine incompatible populations, feature sets, and scoring implementations.</p>
+<p>The project history can be summarized in three stages:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Stage</th>
+          <th>Main purpose</th>
+          <th>Status in this report</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Legacy exploratory notebook</td>
+          <td>Rapid EDA, binning, and early regression</td>
+          <td>Historical only; headline CV metric rejected</td>
+      </tr>
+      <tr>
+          <td>Candidate scorecard implementation</td>
+          <td>Integrate model, score scale, and artifacts</td>
+          <td>Useful for finding contract and score bugs</td>
+      </tr>
+      <tr>
+          <td>Current public pipeline and notebook</td>
+          <td>Train/test isolation, pre-decision selection, packaged inference</td>
+          <td>Primary evidence, with residual limitations</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="42-rejected-leakage-contaminated-result">4.2 Rejected leakage-contaminated result</h3>
+<p>An earlier root notebook fitted optimal binning and WOE on the complete 31,679-row modeling population before running cross-validation. Since WOE values are target-derived, every fold indirectly influenced the transformation applied to every other fold. The reported cross-validation AUC of approximately 0.884428 was therefore an apparent-performance result, not an acceptable estimate of unseen-data performance.</p>
+<p>This defect is easy to miss because the final estimator still receives separate train and validation rows. The leakage occurred one level earlier, when target-informed preprocessing was fitted globally. The lesson is that checking only the <code>model.fit()</code> call is not enough. Every learned object in the pipeline must be included in the validation boundary.</p>
+<p>The current public workflow performs the outer train/test split before fitting the cleaner, WOE transformer, feature selector, and logistic model. The outer test set is transformed only with training-fitted objects. That repairs the principal contamination of the final holdout.</p>
+<h3 id="43-score-mapping-failure-in-an-earlier-candidate">4.3 Score mapping failure in an earlier candidate</h3>
+<p>An earlier scorecard candidate generated numeric bin labels such as <code>Bin_0</code>, while the points table expected interval-form keys. The probability model could still produce a plausible PD, but the bin-to-points lookup failed for numerical features. One audited profile had a PD of roughly 1.64%, which corresponds to a score near 605 under the configured scaling, yet the table-based path returned approximately 324. The maximum discrepancy found in that implementation was 318.45 points.</p>
+<p>This was not a cosmetic display problem. A decision band based on the incorrect score could reverse the operational outcome even when the probability estimate was correct. The current scorecard implementation therefore validates the mathematical identity between two paths:</p>
+<ol>
+<li>calculate score directly from predicted probability;</li>
+<li>calculate score from the model intercept plus feature-level score contributions.</li>
+</ol>
+<p>The maximum observed difference in the repaired implementation was <code>1.1368683772161603e-13</code> points, effectively floating-point noise.</p>
+<h3 id="44-other-inconsistencies-found-during-review">4.4 Other inconsistencies found during review</h3>
+<p>The development history also included stale notebook state, non-reproducible execution order, differing feature lists of nine, six, and seven variables, missing environment dependencies, artifact/source mismatches, and ambiguity over whether grade and interest rate were available at application time. These issues did not all represent statistical leakage, but together they made it impossible to know which result the interface was serving.</p>
+<p>The current repository addresses these problems by centralizing configuration, persisting the cleaner and WOE transformer with the model, recording the selected champion, exporting score tables and metrics, and packaging the artifacts consumed by inference. It also records business eligibility explicitly during candidate comparison.</p>
+<h3 id="45-what-has-and-has-not-been-repaired">4.5 What has and has not been repaired</h3>
+<p>It would be inaccurate to summarize the final system as simply &ldquo;leakage-free.&rdquo; A more precise statement is:</p>
+<ul>
+<li><strong>Repaired:</strong> the final outer test target is isolated from the fitted cleaner, WOE values, feature selector, regression coefficients, and score scaler.</li>
+<li><strong>Repaired:</strong> score points are numerically reconciled with probability and model log-odds.</li>
+<li><strong>Repaired:</strong> the deployment candidate excludes the two fields with the clearest post-decision timing concern.</li>
+<li><strong>Open:</strong> duplicate full-row signatures cross the random split.</li>
+<li><strong>Open:</strong> notebook-matching filters remove a higher-risk missing-employment cohort.</li>
+<li><strong>Open:</strong> WOE is fitted once on the complete outer training set before the ten-fold candidate CV, so the inner CV is not fully nested.</li>
+<li><strong>Open:</strong> no temporal, external, fairness, or economic validation establishes suitability for a live lending portfolio.</li>
+</ul>
+<p>This distinction is central to the report. QA should reduce unsupported claims, not replace one absolute claim with another.</p>
+<h2 id="5-experimental-design">5. Experimental Design</h2>
+<h3 id="51-outer-holdout-protocol">5.1 Outer holdout protocol</h3>
+<p>The cleaned modeling population was divided once into an 80% development set and a 20% holdout set. All candidate comparison and feature locking occurred using the development set. The holdout was opened after the champion feature set had been selected.</p>
+<p>The high-level order was:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln"> 1</span><span class="cl">raw data
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  -&gt; population rules
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  -&gt; stratified 80/20 split
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">  -&gt; fit cleaner on train; transform test
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  -&gt; fit WOE on train; transform test
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  -&gt; fit feature selector on train; transform test
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  -&gt; compare candidate logistic models on train
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  -&gt; lock champion features
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  -&gt; fit champion on complete train
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  -&gt; evaluate once on test
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  -&gt; fit score scale from locked model
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  -&gt; export artifacts and reports
+</span></span></code></pre></div><p>This ordering prevents direct use of the holdout outcome in model development. It also ensures that the application can serialize the same train-fitted transformation objects that generated the reported test results.</p>
+<h3 id="52-inner-cross-validation-caveat">5.2 Inner cross-validation caveat</h3>
+<p>Candidate models were compared with stratified ten-fold cross-validation on the outer training population. The reported candidate metrics are out-of-fold predictions from that process. However, the WOE transformation used by those folds had already been fitted on the full outer training set. Consequently, an inner validation fold contributes to the WOE representation applied to itself.</p>
+<p>The impact is less severe than fitting WOE on the outer test set, because the final holdout remains isolated. Nevertheless, candidate CV means and standard errors can be optimistic. A fully nested design would refit binning, WOE, and feature selection separately inside every inner training fold. The current one-standard-error comparison should therefore be interpreted as a pragmatic selection mechanism within the training population, not a perfectly unbiased estimate.</p>
+<h3 id="53-candidate-feature-sets">5.3 Candidate feature sets</h3>
+<p>Three branches were compared:</p>
+<p><strong>Candidate 1: IV-screened statistical benchmark, 9 features</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">person_income
+</span></span><span class="line"><span class="ln">2</span><span class="cl">person_home_ownership
+</span></span><span class="line"><span class="ln">3</span><span class="cl">person_emp_length
+</span></span><span class="line"><span class="ln">4</span><span class="cl">loan_intent
+</span></span><span class="line"><span class="ln">5</span><span class="cl">loan_grade
+</span></span><span class="line"><span class="ln">6</span><span class="cl">loan_amnt
+</span></span><span class="line"><span class="ln">7</span><span class="cl">loan_int_rate
+</span></span><span class="line"><span class="ln">8</span><span class="cl">loan_percent_income
+</span></span><span class="line"><span class="ln">9</span><span class="cl">cb_person_default_on_file
+</span></span></code></pre></div><p>This branch represents the strongest available scorecard after IV screening. It is valuable as a benchmark, but it is not business-eligible for the intended pre-decision workflow because it contains grade and interest rate.</p>
+<p><strong>Candidate 2: intermediate pre-decision model, 7 features</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">person_income
+</span></span><span class="line"><span class="ln">2</span><span class="cl">person_home_ownership
+</span></span><span class="line"><span class="ln">3</span><span class="cl">person_emp_length
+</span></span><span class="line"><span class="ln">4</span><span class="cl">loan_intent
+</span></span><span class="line"><span class="ln">5</span><span class="cl">loan_amnt
+</span></span><span class="line"><span class="ln">6</span><span class="cl">loan_percent_income
+</span></span><span class="line"><span class="ln">7</span><span class="cl">cb_person_default_on_file
+</span></span></code></pre></div><p>This branch removes grade and interest rate while retaining requested amount and income in addition to their ratio.</p>
+<p><strong>Candidate 3: compact explainable model, 5 features</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">person_home_ownership
+</span></span><span class="line"><span class="ln">2</span><span class="cl">person_emp_length
+</span></span><span class="line"><span class="ln">3</span><span class="cl">loan_intent
+</span></span><span class="line"><span class="ln">4</span><span class="cl">loan_percent_income
+</span></span><span class="line"><span class="ln">5</span><span class="cl">cb_person_default_on_file
+</span></span></code></pre></div><p>This branch is easier to summarize, but it discards the separate scale information in income and requested amount.</p>
+<h3 id="54-one-standard-error-selection-rule">5.4 One-standard-error selection rule</h3>
+<p>Selecting the largest cross-validation mean can favor a more complex model because of sampling noise. The one-standard-error rule instead identifies candidates whose mean performance is statistically close to the best eligible model and then prefers the simpler option among them.</p>
+<p>Within the business-eligible candidates, the best mean AUC was 0.82574 and its standard error was 0.00390, producing a one-standard-error threshold of approximately 0.82184. The seven-feature intermediate model met this threshold. The five-feature model, with mean AUC 0.80579, did not. The intermediate model was therefore selected before evaluating the outer test set.</p>
+<h3 id="55-evaluation-measures">5.5 Evaluation measures</h3>
+<p>No single metric fully describes a credit model:</p>
+<ul>
+<li><strong>ROC AUC</strong> measures the probability that a randomly selected default receives higher predicted risk than a randomly selected good account.</li>
+<li><strong>Gini</strong> is <code>2 * AUC - 1</code>, a common transformation of ranking performance.</li>
+<li><strong>KS</strong> is the maximum difference between cumulative score distributions for good and bad outcomes.</li>
+<li><strong>Brier score</strong> is the mean squared error of predicted probabilities; lower is better.</li>
+<li><strong>Log loss</strong> penalizes confident incorrect probabilities more heavily; lower is better.</li>
+<li><strong>Calibration intercept</strong> measures systematic probability bias; the ideal value is zero.</li>
+<li><strong>Calibration slope</strong> measures whether predictions are too extreme or too compressed; the ideal value is one.</li>
+<li><strong>Precision, recall, and F1</strong> require a classification threshold and therefore describe a policy point, not the probability model in isolation.</li>
+</ul>
+<h2 id="6-candidate-model-results">6. Candidate Model Results</h2>
+<h3 id="61-cross-validation-comparison">6.1 Cross-validation comparison</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Candidate</th>
+          <th style="text-align: right">Features</th>
+          <th>Business eligible</th>
+          <th style="text-align: right">OOF AUC</th>
+          <th style="text-align: right">Gini</th>
+          <th style="text-align: right">KS</th>
+          <th style="text-align: right">Brier</th>
+          <th style="text-align: right">Log loss</th>
+          <th style="text-align: right">Mean CV AUC</th>
+          <th style="text-align: right">CV SD</th>
+          <th style="text-align: right">Max VIF</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>IV-screened full</td>
+          <td style="text-align: right">9</td>
+          <td>No</td>
+          <td style="text-align: right">0.88270</td>
+          <td style="text-align: right">0.76540</td>
+          <td style="text-align: right">0.63153</td>
+          <td style="text-align: right">0.09344</td>
+          <td style="text-align: right">0.31837</td>
+          <td style="text-align: right">0.88278</td>
+          <td style="text-align: right">0.01099</td>
+          <td style="text-align: right">4.2209</td>
+      </tr>
+      <tr>
+          <td>Intermediate pre-decision</td>
+          <td style="text-align: right">7</td>
+          <td>Yes</td>
+          <td style="text-align: right">0.82573</td>
+          <td style="text-align: right">0.65146</td>
+          <td style="text-align: right">0.48821</td>
+          <td style="text-align: right">0.11465</td>
+          <td style="text-align: right">0.37642</td>
+          <td style="text-align: right">0.82574</td>
+          <td style="text-align: right">0.01233</td>
+          <td style="text-align: right">1.6191</td>
+      </tr>
+      <tr>
+          <td>Explainable pre-decision</td>
+          <td style="text-align: right">5</td>
+          <td>Yes</td>
+          <td style="text-align: right">0.80575</td>
+          <td style="text-align: right">0.61150</td>
+          <td style="text-align: right">0.45227</td>
+          <td style="text-align: right">0.11811</td>
+          <td style="text-align: right">0.38774</td>
+          <td style="text-align: right">0.80579</td>
+          <td style="text-align: right">0.01068</td>
+          <td style="text-align: right">1.0580</td>
+      </tr>
+  </tbody>
+</table>
+<p><img src="candidate-model-auc.png" alt="Cross-validation AUC comparison across candidate feature sets"></p>
+<p><em>The full statistical benchmark is strongest, but it is not eligible for the intended pre-decision workflow.</em></p>
+<p>Removing grade and interest rate from the nine-feature benchmark reduced out-of-fold AUC by 0.05697, Gini by 0.11394, and KS by 0.14332. That is a meaningful loss, not a negligible trade-off. It quantifies how much predictive information those two fields carry in this dataset. It does not justify deploying them when their availability would create circular decision logic.</p>
+<p>Reducing the intermediate model from seven to five features cost another 0.01998 AUC and 0.03996 Gini. Brier score worsened from 0.11465 to 0.11811, while log loss increased from 0.37642 to 0.38774. The result suggests that <code>person_income</code> and <code>loan_amnt</code> contribute information beyond the ratio <code>loan_percent_income</code>. Two applicants can have the same ratio but very different absolute financial capacity and exposure.</p>
+<p>The seven-feature candidate therefore represents a defensible compromise. It is materially weaker than the post-decision benchmark but stronger than the compact alternative, remains within the eligible one-standard-error region, and preserves a manageable feature contract.</p>
+<h3 id="62-champion-logistic-model">6.2 Champion logistic model</h3>
+<p>The final generalized linear model was fitted on 25,343 training observations using a binomial logit specification. It converged in six IRLS iterations. The log-likelihood was -9,530.6, deviance was 19,061, Pearson chi-square was approximately 26,800, and Cox-Snell pseudo R-squared was 0.2518.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Term</th>
+          <th style="text-align: right">Coefficient</th>
+          <th style="text-align: right">Standard error</th>
+          <th style="text-align: right">z</th>
+          <th style="text-align: right">95% CI</th>
+          <th style="text-align: right">Odds ratio</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Intercept</td>
+          <td style="text-align: right">-1.319853</td>
+          <td style="text-align: right">0.019052</td>
+          <td style="text-align: right">-69.2746</td>
+          <td style="text-align: right">[-1.357195, -1.282511]</td>
+          <td style="text-align: right">0.267175</td>
+      </tr>
+      <tr>
+          <td><code>person_income</code> WOE</td>
+          <td style="text-align: right">-0.761879</td>
+          <td style="text-align: right">0.032142</td>
+          <td style="text-align: right">-23.7035</td>
+          <td style="text-align: right">[-0.824876, -0.698882]</td>
+          <td style="text-align: right">0.466788</td>
+      </tr>
+      <tr>
+          <td><code>person_home_ownership</code> WOE</td>
+          <td style="text-align: right">-0.886518</td>
+          <td style="text-align: right">0.031722</td>
+          <td style="text-align: right">-27.9463</td>
+          <td style="text-align: right">[-0.948692, -0.824343]</td>
+          <td style="text-align: right">0.412088</td>
+      </tr>
+      <tr>
+          <td><code>person_emp_length</code> WOE</td>
+          <td style="text-align: right">-0.385450</td>
+          <td style="text-align: right">0.075886</td>
+          <td style="text-align: right">-5.0793</td>
+          <td style="text-align: right">[-0.534185, -0.236716]</td>
+          <td style="text-align: right">0.680144</td>
+      </tr>
+      <tr>
+          <td><code>loan_intent</code> WOE</td>
+          <td style="text-align: right">-1.206978</td>
+          <td style="text-align: right">0.058025</td>
+          <td style="text-align: right">-20.8008</td>
+          <td style="text-align: right">[-1.320706, -1.093251]</td>
+          <td style="text-align: right">0.299100</td>
+      </tr>
+      <tr>
+          <td><code>loan_amnt</code> WOE</td>
+          <td style="text-align: right">-0.815549</td>
+          <td style="text-align: right">0.080429</td>
+          <td style="text-align: right">-10.1400</td>
+          <td style="text-align: right">[-0.973187, -0.657912]</td>
+          <td style="text-align: right">0.442396</td>
+      </tr>
+      <tr>
+          <td><code>loan_percent_income</code> WOE</td>
+          <td style="text-align: right">-0.856457</td>
+          <td style="text-align: right">0.023129</td>
+          <td style="text-align: right">-37.0298</td>
+          <td style="text-align: right">[-0.901789, -0.811125]</td>
+          <td style="text-align: right">0.424664</td>
+      </tr>
+      <tr>
+          <td><code>cb_person_default_on_file</code> WOE</td>
+          <td style="text-align: right">-1.150343</td>
+          <td style="text-align: right">0.042973</td>
+          <td style="text-align: right">-26.7691</td>
+          <td style="text-align: right">[-1.234568, -1.066118]</td>
+          <td style="text-align: right">0.316528</td>
+      </tr>
+  </tbody>
+</table>
+<p>All selected feature coefficients were statistically different from zero at <code>p &lt; 0.001</code> in the fitted training model. Statistical significance should not be confused with causal importance. The coefficients describe associations after WOE transformation within this sample. The odds ratios correspond to a one-unit increase in WOE, not to a one-unit increase in the original raw variable.</p>
+<h3 id="63-sign-and-multicollinearity-checks">6.3 Sign and multicollinearity checks</h3>
+<p>Every selected coefficient was negative in all ten cross-validation fits. The coefficient standard deviations ranged from approximately 0.0052 for loan-to-income WOE to 0.0319 for loan amount WOE. This sign consistency supports the intended good-over-bad WOE convention and suggests that no fold required a reversal to fit the data.</p>
+<p>The maximum variance inflation factor for the champion was 1.6191, well below the common diagnostic threshold of five. Retaining both income, loan amount, and their ratio did not create severe linear multicollinearity in WOE space. That result supports the empirical improvement observed over the five-feature candidate.</p>
+<h2 id="7-holdout-performance-and-calibration">7. Holdout Performance and Calibration</h2>
+<h3 id="71-final-test-results">7.1 Final test results</h3>
+<p>After feature locking and final training, the model was evaluated on 6,336 holdout records:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Metric</th>
+          <th style="text-align: right">Test result</th>
+          <th>Interpretation</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>ROC AUC</td>
+          <td style="text-align: right">0.83197</td>
+          <td>Good ranking discrimination within this dataset</td>
+      </tr>
+      <tr>
+          <td>Gini</td>
+          <td style="text-align: right">0.66394</td>
+          <td>Equivalent ranking summary derived from AUC</td>
+      </tr>
+      <tr>
+          <td>KS</td>
+          <td style="text-align: right">0.50109</td>
+          <td>Clear separation between good and bad distributions</td>
+      </tr>
+      <tr>
+          <td>Brier score</td>
+          <td style="text-align: right">0.11289</td>
+          <td>Moderate squared probability error</td>
+      </tr>
+      <tr>
+          <td>Log loss</td>
+          <td style="text-align: right">0.37090</td>
+          <td>Probability quality with heavier penalty for confident errors</td>
+      </tr>
+      <tr>
+          <td>Calibration intercept</td>
+          <td style="text-align: right">0.0357</td>
+          <td>Small global underprediction tendency</td>
+      </tr>
+      <tr>
+          <td>Calibration slope</td>
+          <td style="text-align: right">1.0386</td>
+          <td>Probability spread close to the ideal slope of one</td>
+      </tr>
+  </tbody>
+</table>
+<p><img src="test-roc.png" alt="Receiver operating characteristic curve on the untouched test set"></p>
+<p><em>The ROC curve measures ranking across all possible thresholds. It does not select an approval policy.</em></p>
+<p>The holdout AUC is 0.00624 higher than the intermediate model&rsquo;s out-of-fold training AUC. Test Gini is higher by 0.01248 and KS by 0.01288, while Brier score is lower by 0.00176 and log loss lower by 0.00552. These small improvements are plausible sampling variation and do not suggest overfitting from the candidate comparison. They also should not be interpreted as proof that the model will improve on future time periods.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Measure</th>
+          <th style="text-align: right">OOF development</th>
+          <th style="text-align: right">Holdout test</th>
+          <th style="text-align: right">Test minus OOF</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>AUC</td>
+          <td style="text-align: right">0.82573</td>
+          <td style="text-align: right">0.83197</td>
+          <td style="text-align: right">+0.00624</td>
+      </tr>
+      <tr>
+          <td>Gini</td>
+          <td style="text-align: right">0.65146</td>
+          <td style="text-align: right">0.66394</td>
+          <td style="text-align: right">+0.01248</td>
+      </tr>
+      <tr>
+          <td>KS</td>
+          <td style="text-align: right">0.48821</td>
+          <td style="text-align: right">0.50109</td>
+          <td style="text-align: right">+0.01288</td>
+      </tr>
+      <tr>
+          <td>Brier</td>
+          <td style="text-align: right">0.11465</td>
+          <td style="text-align: right">0.11289</td>
+          <td style="text-align: right">-0.00176</td>
+      </tr>
+      <tr>
+          <td>Log loss</td>
+          <td style="text-align: right">0.37642</td>
+          <td style="text-align: right">0.37090</td>
+          <td style="text-align: right">-0.00552</td>
+      </tr>
+  </tbody>
+</table>
+<p>Duplicate overlap and same-source random splitting remain possible sources of optimism. The stable train-to-test relationship is encouraging, but an out-of-time sample is still required before claiming population stability.</p>
+<h3 id="72-calibration-analysis">7.2 Calibration analysis</h3>
+<p>Discrimination asks whether risky borrowers rank above safer borrowers. Calibration asks whether a predicted 20% default rate corresponds to approximately 20 defaults per 100 comparable cases. A model can rank well and still provide poor probabilities, which would undermine expected-loss and pricing calculations.</p>
+<p><img src="test-calibration.png" alt="Observed default rates against predicted probabilities by calibration group"></p>
+<p><em>Global calibration is close to the ideal diagonal, with visible local deviations in several risk groups.</em></p>
+<p>The ten calibration groups were:</p>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: right">Decile from low to high risk</th>
+          <th style="text-align: right">Mean predicted PD</th>
+          <th style="text-align: right">Actual bad rate</th>
+          <th style="text-align: right">Records</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: right">1</td>
+          <td style="text-align: right">1.94%</td>
+          <td style="text-align: right">1.89%</td>
+          <td style="text-align: right">634</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">2</td>
+          <td style="text-align: right">3.53%</td>
+          <td style="text-align: right">4.89%</td>
+          <td style="text-align: right">634</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">3</td>
+          <td style="text-align: right">5.39%</td>
+          <td style="text-align: right">7.39%</td>
+          <td style="text-align: right">636</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">4</td>
+          <td style="text-align: right">7.64%</td>
+          <td style="text-align: right">8.08%</td>
+          <td style="text-align: right">631</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">5</td>
+          <td style="text-align: right">10.61%</td>
+          <td style="text-align: right">11.99%</td>
+          <td style="text-align: right">634</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">6</td>
+          <td style="text-align: right">14.58%</td>
+          <td style="text-align: right">15.48%</td>
+          <td style="text-align: right">633</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">7</td>
+          <td style="text-align: right">20.36%</td>
+          <td style="text-align: right">17.22%</td>
+          <td style="text-align: right">633</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">8</td>
+          <td style="text-align: right">29.50%</td>
+          <td style="text-align: right">25.04%</td>
+          <td style="text-align: right">635</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">9</td>
+          <td style="text-align: right">45.89%</td>
+          <td style="text-align: right">38.29%</td>
+          <td style="text-align: right">632</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">10</td>
+          <td style="text-align: right">76.36%</td>
+          <td style="text-align: right">85.17%</td>
+          <td style="text-align: right">634</td>
+      </tr>
+  </tbody>
+</table>
+<p>The lowest-risk group is calibrated almost exactly. Deciles two through six generally underpredict risk, deciles seven through nine overpredict, and the highest-risk group underpredicts substantially. The global intercept and slope remain close to ideal because positive and negative local deviations partially offset each other.</p>
+<p>For decision support, this means the probability output is useful but should not be treated as perfectly calibrated at every risk level. Recalibration using a later validation sample could improve the curve, especially if the model is transferred to a portfolio with a different base default rate.</p>
+<h3 id="73-threshold-dependent-classification">7.3 Threshold-dependent classification</h3>
+<p>The repository reports precision 0.5116, recall 0.6791, and F1 0.5836 for one selected classification threshold. These values are useful for understanding a specific operating point, but they are not fixed properties of the model. Raising the threshold generally increases precision and reduces recall; lowering it does the opposite.</p>
+<p>Different notebook sections also analyze Youden&rsquo;s J and business score cutoffs. Their precision and recall values should not be mixed because they represent different threshold choices. The threshold-independent AUC, KS, Brier, and log-loss results are the primary model comparison evidence. Approval cutoffs belong to a separate policy analysis.</p>
+<h2 id="8-scorecard-construction-and-validation">8. Scorecard Construction and Validation</h2>
+<h3 id="81-odds-and-points-scaling">8.1 Odds and points scaling</h3>
+<p>The scorecard uses a base score of 600 at good-to-bad odds of 50:1 and 20 points to double the odds. The parameters are:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">BaseScore = 600
+</span></span><span class="line"><span class="ln">2</span><span class="cl">BaseOdds  = 50
+</span></span><span class="line"><span class="ln">3</span><span class="cl">PDO       = 20
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl">Factor = PDO / ln(2)
+</span></span><span class="line"><span class="ln">6</span><span class="cl">       = 28.853901
+</span></span><span class="line"><span class="ln">7</span><span class="cl">
+</span></span><span class="line"><span class="ln">8</span><span class="cl">Offset = BaseScore - Factor * ln(BaseOdds)
+</span></span><span class="line"><span class="ln">9</span><span class="cl">       = 487.122876
+</span></span></code></pre></div><p>For predicted default probability <code>PD</code>, bad odds are <code>PD / (1 - PD)</code>. The credit score is:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">Score = Offset - Factor * ln(PD / (1 - PD))
+</span></span></code></pre></div><p>The negative sign ensures that higher default probability produces a lower score. At 50:1 good-to-bad odds, PD is <code>1 / 51</code>, or approximately 1.96%, and the score is 600. If the good-to-bad odds double to 100:1, the score becomes 620. If they halve to 25:1, the score becomes 580.</p>
+<p>For example, a predicted PD of 2% produces:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">log odds = ln(0.02 / 0.98) = -3.8918
+</span></span><span class="line"><span class="ln">2</span><span class="cl">score    = 487.1229 - 28.8539 * (-3.8918)
+</span></span><span class="line"><span class="ln">3</span><span class="cl">         = approximately 599.4
+</span></span></code></pre></div><h3 id="82-additive-feature-points">8.2 Additive feature points</h3>
+<p>Substituting the logistic equation into the score equation gives an additive scorecard:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">Score = Offset - Factor * beta_0
+</span></span><span class="line"><span class="ln">2</span><span class="cl">        - Factor * sum_i(beta_i * WOE_i)
+</span></span></code></pre></div><p>The intercept contributes base points of approximately 525.20579. For feature <code>i</code> and bin <code>j</code>, the feature contribution is:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">Points_ij = -Factor * beta_i * WOE_ij
+</span></span></code></pre></div><p>Because the selected <code>beta_i</code> values are negative, a positive WOE for a safer bin produces positive points. A risky negative-WOE bin subtracts points. The application can therefore explain a final score by listing the points added or removed by each observed bin.</p>
+<h3 id="83-mathematical-identity-checks">8.3 Mathematical identity checks</h3>
+<p>The repaired scorecard was validated through three numerical relationships:</p>
+<ul>
+<li>the maximum absolute difference between direct probability scaling and additive logit scaling was <code>1.14e-13</code> points;</li>
+<li>the correlation between predicted PD and score was <code>-0.95261</code>, confirming the expected inverse relationship despite discrete bin effects;</li>
+<li>the exported score calibration showed mean absolute error of approximately 0.6160 points and a variance ratio of 1.0102.</li>
+</ul>
+<p>The direct identity test is more important than visual plausibility. A score distribution can look reasonable while individual rows are mapped incorrectly. The prior 318-point failure demonstrated that point tables, bin labels, and serialized transformations must be tested row by row.</p>
+<h3 id="84-score-band-ordering">8.4 Score-band ordering</h3>
+<p>The holdout scores were divided into ten approximately equal-frequency bands. The general pattern is monotonic: high-score groups contain lower observed default rates, while low-score groups contain substantially higher risk.</p>
+<p><img src="score-band-risk.png" alt="Observed risk across score bands on the holdout set"></p>
+<p><em>Higher score bands generally correspond to lower predicted and observed default risk.</em></p>
+<table>
+  <thead>
+      <tr>
+          <th>Score interval</th>
+          <th style="text-align: right">Average score</th>
+          <th style="text-align: right">Mean PD</th>
+          <th style="text-align: right">Actual bad rate</th>
+          <th style="text-align: right">Records</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>589.907 to 638.772</td>
+          <td style="text-align: right">601.48</td>
+          <td style="text-align: right">1.94%</td>
+          <td style="text-align: right">1.89%</td>
+          <td style="text-align: right">634</td>
+      </tr>
+      <tr>
+          <td>576.177 to 589.907</td>
+          <td style="text-align: right">582.82</td>
+          <td style="text-align: right">3.53%</td>
+          <td style="text-align: right">4.92%</td>
+          <td style="text-align: right">630</td>
+      </tr>
+      <tr>
+          <td>564.581 to 576.177</td>
+          <td style="text-align: right">570.09</td>
+          <td style="text-align: right">5.37%</td>
+          <td style="text-align: right">6.64%</td>
+          <td style="text-align: right">633</td>
+      </tr>
+      <tr>
+          <td>553.441 to 564.581</td>
+          <td style="text-align: right">559.24</td>
+          <td style="text-align: right">7.63%</td>
+          <td style="text-align: right">8.79%</td>
+          <td style="text-align: right">637</td>
+      </tr>
+      <tr>
+          <td>543.998 to 553.441</td>
+          <td style="text-align: right">548.74</td>
+          <td style="text-align: right">10.61%</td>
+          <td style="text-align: right">12.01%</td>
+          <td style="text-align: right">633</td>
+      </tr>
+      <tr>
+          <td>533.190 to 543.998</td>
+          <td style="text-align: right">538.32</td>
+          <td style="text-align: right">14.55%</td>
+          <td style="text-align: right">15.42%</td>
+          <td style="text-align: right">629</td>
+      </tr>
+      <tr>
+          <td>520.084 to 533.190</td>
+          <td style="text-align: right">526.69</td>
+          <td style="text-align: right">20.32%</td>
+          <td style="text-align: right">17.21%</td>
+          <td style="text-align: right">639</td>
+      </tr>
+      <tr>
+          <td>503.118 to 520.084</td>
+          <td style="text-align: right">512.47</td>
+          <td style="text-align: right">29.47%</td>
+          <td style="text-align: right">25.00%</td>
+          <td style="text-align: right">632</td>
+      </tr>
+      <tr>
+          <td>476.319 to 503.118</td>
+          <td style="text-align: right">492.00</td>
+          <td style="text-align: right">45.85%</td>
+          <td style="text-align: right">38.27%</td>
+          <td style="text-align: right">635</td>
+      </tr>
+      <tr>
+          <td>386.537 to 476.319</td>
+          <td style="text-align: right">449.95</td>
+          <td style="text-align: right">76.36%</td>
+          <td style="text-align: right">85.17%</td>
+          <td style="text-align: right">634</td>
+      </tr>
+  </tbody>
+</table>
+<p>The ordering supports the operational interpretation of the scale. Local calibration differences remain visible: the model overpredicts risk in several middle-low score bands and underpredicts the worst band. Score bands should therefore be monitored for both ordering and observed rate, not only for population count.</p>
+<h2 id="9-cutoff-and-decision-policy-analysis">9. Cutoff and Decision Policy Analysis</h2>
+<h3 id="91-model-output-is-not-policy">9.1 Model output is not policy</h3>
+<p>A probability model estimates risk. A lending policy decides what to do with that risk. The policy depends on expected loss, loss given default, exposure at default, interest margin, acquisition costs, review capacity, legal constraints, fairness requirements, and portfolio risk appetite. None of those quantities is fully represented by AUC.</p>
+<p>The notebook explored several score cutoffs to show the trade-off between approval volume and portfolio quality:</p>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: right">Approval cutoff</th>
+          <th style="text-align: right">Approval rate</th>
+          <th style="text-align: right">Bad rate among approved</th>
+          <th style="text-align: right">Share of all bads rejected</th>
+          <th style="text-align: right">Good-account rejection rate</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: right">553</td>
+          <td style="text-align: right">40.84%</td>
+          <td style="text-align: right">6.19%</td>
+          <td style="text-align: right">88.26%</td>
+          <td style="text-align: right">51.17%</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">544</td>
+          <td style="text-align: right">50.44%</td>
+          <td style="text-align: right">7.26%</td>
+          <td style="text-align: right">83.00%</td>
+          <td style="text-align: right">40.38%</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">533</td>
+          <td style="text-align: right">60.20%</td>
+          <td style="text-align: right">8.47%</td>
+          <td style="text-align: right">76.34%</td>
+          <td style="text-align: right">29.77%</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">520</td>
+          <td style="text-align: right">70.38%</td>
+          <td style="text-align: right">9.91%</td>
+          <td style="text-align: right">67.64%</td>
+          <td style="text-align: right">19.18%</td>
+      </tr>
+      <tr>
+          <td style="text-align: right">503</td>
+          <td style="text-align: right">80.65%</td>
+          <td style="text-align: right">11.77%</td>
+          <td style="text-align: right">55.95%</td>
+          <td style="text-align: right">9.29%</td>
+      </tr>
+  </tbody>
+</table>
+<p><img src="cutoff-tradeoff.png" alt="Approval volume and approved bad-rate trade-off across score cutoffs"></p>
+<p><em>Relaxing the cutoff approves more applicants but increases the observed bad rate among approved accounts.</em></p>
+<p>A cutoff of 553 produces the cleanest approved portfolio in this table but rejects more than half of the good accounts. A cutoff of 503 preserves much more good business but approves a population with an 11.77% observed bad rate. The table makes clear why a cutoff cannot be selected from model accuracy alone.</p>
+<h3 id="92-demonstration-policy-bands">9.2 Demonstration policy bands</h3>
+<p>The Streamlit configuration demonstrates three bands:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">score &gt;= 533       -&gt; auto-approve demonstration band
+</span></span><span class="line"><span class="ln">2</span><span class="cl">503 &lt;= score &lt; 533 -&gt; manual-review demonstration band
+</span></span><span class="line"><span class="ln">3</span><span class="cl">score &lt; 503        -&gt; reject demonstration band
+</span></span></code></pre></div><p>These thresholds create a useful interface example. They are not approved underwriting rules. The manual-review band illustrates one reason to expose score contributions: borderline applications may require verification, additional documentation, or a second decision system rather than an automatic outcome.</p>
+<p>An exploratory constrained search requiring at least 55% approval and no more than 9% bad rate among approvals selected a cutoff near 529. At that point, approval was 63.81%, approved bad rate 8.95%, bad capture 73.48%, and good rejection 25.95%. This is still an in-sample policy exercise on the available evaluation data. The constraints are illustrative and do not represent a lender&rsquo;s validated economics.</p>
+<h3 id="93-statistical-threshold-benchmark">9.3 Statistical threshold benchmark</h3>
+<p>The training out-of-fold Youden criterion selected a PD threshold of approximately 0.25341, equivalent to a score near 518.30. It balanced sensitivity of 66.83% and specificity of 81.99%, producing Youden&rsquo;s J of 0.4882.</p>
+<p>Youden&rsquo;s J gives equal weight to sensitivity and specificity. Lending costs are rarely symmetric: accepting a future default and rejecting a profitable good borrower have different financial consequences. The Youden point is therefore a statistical reference, not a recommended approval cutoff.</p>
+<h3 id="94-requirements-for-a-real-policy">9.4 Requirements for a real policy</h3>
+<p>Before using the score for real decisions, a policy study should at minimum:</p>
+<ol>
+<li>define the prediction horizon and default event precisely;</li>
+<li>estimate exposure at default and loss given default;</li>
+<li>incorporate expected revenue and operational review cost;</li>
+<li>validate cutoffs on a later, untouched population;</li>
+<li>test stability under changes in application mix and macroeconomic conditions;</li>
+<li>complete fairness, legal, adverse-action, and human-override reviews;</li>
+<li>specify monitoring limits and rollback conditions.</li>
+</ol>
+<h2 id="10-reproducible-system-and-mlops-design">10. Reproducible System and MLOps Design</h2>
+<h3 id="101-repository-architecture">10.1 Repository architecture</h3>
+<p>The repository separates exploratory notebooks from the training and inference path. The main modules are:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln"> 1</span><span class="cl">main.py
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  orchestrates loading, splitting, preprocessing, selection,
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  modeling, evaluation, scorecard export, and packaging
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">src/data_loader.py
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  loads the source data and applies population-mode rules
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">src/preprocessing.py
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  fits cleaner behavior and WOE transformations
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl">src/feature_selection.py
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  creates candidate branches and audit information
+</span></span><span class="line"><span class="ln">13</span><span class="cl">
+</span></span><span class="line"><span class="ln">14</span><span class="cl">src/model.py
+</span></span><span class="line"><span class="ln">15</span><span class="cl">  trains and evaluates logistic candidates
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl">src/scorecard.py
+</span></span><span class="line"><span class="ln">18</span><span class="cl">  scales probability/log-odds into score points
+</span></span><span class="line"><span class="ln">19</span><span class="cl">
+</span></span><span class="line"><span class="ln">20</span><span class="cl">src/inference.py
+</span></span><span class="line"><span class="ln">21</span><span class="cl">  loads frozen artifacts for single and batch scoring
+</span></span><span class="line"><span class="ln">22</span><span class="cl">
+</span></span><span class="line"><span class="ln">23</span><span class="cl">src/utils.py
+</span></span><span class="line"><span class="ln">24</span><span class="cl">  exports tables, plots, run metadata, decisions, and model.zip
+</span></span><span class="line"><span class="ln">25</span><span class="cl">
+</span></span><span class="line"><span class="ln">26</span><span class="cl">app.py
+</span></span><span class="line"><span class="ln">27</span><span class="cl">  provides the Streamlit decision-support interface
+</span></span></code></pre></div><p>The notebook remains valuable for scientific traceability, but the application does not retrain or reconstruct the transformations from notebook cells. It loads serialized artifacts generated by the pipeline.</p>
+<h3 id="102-artifact-contract">10.2 Artifact contract</h3>
+<p>Each completed training run persists the key learned objects:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">champion_logistic_model.pkl
+</span></span><span class="line"><span class="ln">2</span><span class="cl">cleaner.pkl
+</span></span><span class="line"><span class="ln">3</span><span class="cl">woe_transformer.pkl
+</span></span><span class="line"><span class="ln">4</span><span class="cl">feature_selector.pkl
+</span></span><span class="line"><span class="ln">5</span><span class="cl">score_scaler.pkl
+</span></span></code></pre></div><p>The run directory also includes score tables, metrics, plots, feature audits, and decision logs. The core production binaries are packaged into <code>model.zip</code>. If configured credentials are available, the package can be synchronized to Hugging Face Hub for the hosted Streamlit application.</p>
+<p>Persisting the complete chain matters because a logistic coefficient vector alone is not a usable scorecard. The model expects the same cleaning rules, derived-variable definition, WOE bins, selected column order, and score scale used during validation. Changing any one of those components can invalidate the reported performance or produce incorrect scores.</p>
+<h3 id="103-reproducible-execution">10.3 Reproducible execution</h3>
+<p>The documented local workflow is:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">git clone https://github.com/Whoami-404-pip/Credit-Score-Model.git
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nb">cd</span> Credit-Score-Model
+</span></span><span class="line"><span class="ln">3</span><span class="cl">pip install -r requirements.txt
+</span></span><span class="line"><span class="ln">4</span><span class="cl">python main.py
+</span></span><span class="line"><span class="ln">5</span><span class="cl">streamlit run app.py
+</span></span></code></pre></div><p>The training configuration records the preprocessing mode, split ratio, random seed, cross-validation folds, binning constraints, IV range, score base, base odds, PDO, and deployment thresholds. Reproducibility still depends on dependency versions and source data availability. A future release would benefit from a lock file, dataset checksum, schema validation, and an automated end-to-end regression test comparing generated metrics and row-level scores against a known reference artifact.</p>
+<h3 id="104-inference-workflow">10.4 Inference workflow</h3>
+<p>At inference time, the application:</p>
+<ol>
+<li>validates the input schema and converts fields to the expected types;</li>
+<li>applies the frozen cleaner and feature derivation rules;</li>
+<li>maps raw values to the fitted WOE bins;</li>
+<li>orders the champion feature columns;</li>
+<li>predicts default probability with the serialized logistic model;</li>
+<li>converts probability and feature contributions into score points;</li>
+<li>assigns the configured demonstration band;</li>
+<li>returns an explanation and, for batch mode, downloadable results.</li>
+</ol>
+<p>This shared inference engine reduces notebook-to-application drift. It does not eliminate operational risk. Pickle artifacts must come from a trusted source, input limits must be enforced, failures must be logged, and a production deployment should verify model and configuration versions before scoring.</p>
+<h2 id="11-decision-support-interface">11. Decision-Support Interface</h2>
+<h3 id="111-single-application-scoring">11.1 Single-application scoring</h3>
+<p>The first application flow collects one applicant and loan request, then displays predicted default probability, credit score, decision band, and feature-level contribution evidence.</p>
+<p><img src="demo-tab-1.gif" alt="Single-application credit scoring workflow"></p>
+<p><em>Single-application scoring with a compact underwriter-oriented explanation.</em></p>
+<p>The interface is most useful when it shows more than a color and a label. A reviewer should be able to identify whether a low score is driven by debt burden, home ownership, loan purpose, prior default history, or another selected factor. This supports data correction and human review, although it does not by itself satisfy legal adverse-action requirements.</p>
+<h3 id="112-batch-portfolio-scoring">11.2 Batch portfolio scoring</h3>
+<p>The second flow accepts a CSV file and applies the same frozen artifact chain to each row.</p>
+<p><img src="demo-tab-2.gif" alt="Batch CSV credit scoring workflow"></p>
+<p><em>Batch scoring for portfolio simulation and downloadable review.</em></p>
+<p>Batch mode supports distribution checks, cutoff simulation, and operational testing. It also creates additional requirements: malformed rows should be isolated rather than terminate the full job, output should include a model version, and large uploads should have size and execution limits.</p>
+<h3 id="113-security-boundary">11.3 Security boundary</h3>
+<p>The current access gate is appropriate only for a demonstration. A static passcode in a public application is not production authentication. A real system handling financial information requires server-side identity management, role-based authorization, secure secrets, encrypted transport and storage, audit logs, retention rules, incident response, and restrictions on who can download scored applicant data.</p>
+<h2 id="12-qa-assessment-and-threats-to-validity">12. QA Assessment and Threats to Validity</h2>
+<h3 id="121-evidence-supporting-the-prototype">12.1 Evidence supporting the prototype</h3>
+<p>Several aspects of the final implementation are technically sound and worth preserving:</p>
+<ul>
+<li>the outer holdout is separated before fitting the main learned transformations;</li>
+<li>the feature contract explicitly distinguishes statistical availability from business timing;</li>
+<li>candidate selection is documented instead of silently choosing the largest metric;</li>
+<li>all champion coefficients have coherent signs and low multicollinearity;</li>
+<li>holdout discrimination and global calibration are both reported;</li>
+<li>score points are tested against the probability formula;</li>
+<li>the application loads the frozen transformation chain rather than duplicating notebook logic;</li>
+<li>outputs include model evidence, not only an approval label.</li>
+</ul>
+<h3 id="122-residual-risks">12.2 Residual risks</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Risk</th>
+          <th>Evidence</th>
+          <th>Likely effect</th>
+          <th>Required next step</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Duplicate overlap</td>
+          <td>44 full-row signatures crossed the audited split</td>
+          <td>Optimistic holdout estimate</td>
+          <td>Deduplicate or use group-aware split</td>
+      </tr>
+      <tr>
+          <td>Selection bias</td>
+          <td>Removed cohort bad rate 31.37% vs 21.54% retained</td>
+          <td>Easier modeling population</td>
+          <td>Retain missing cases and model missingness</td>
+      </tr>
+      <tr>
+          <td>Non-nested inner CV</td>
+          <td>WOE fitted on full outer train before folds</td>
+          <td>Optimistic candidate CV estimates</td>
+          <td>Fit complete pipeline inside every fold</td>
+      </tr>
+      <tr>
+          <td>No temporal validation</td>
+          <td>Random split from one public dataset</td>
+          <td>Unknown drift and vintage stability</td>
+          <td>Use out-of-time validation</td>
+      </tr>
+      <tr>
+          <td>No external validation</td>
+          <td>One source population</td>
+          <td>Unknown portability</td>
+          <td>Validate on an independent portfolio</td>
+      </tr>
+      <tr>
+          <td>No economic model</td>
+          <td>Cutoffs lack LGD, EAD, margin, and cost</td>
+          <td>Policy may be unprofitable</td>
+          <td>Optimize expected value under constraints</td>
+      </tr>
+      <tr>
+          <td>No fairness audit</td>
+          <td>No subgroup performance evidence</td>
+          <td>Unknown disparate impact</td>
+          <td>Define protected groups and test outcomes</td>
+      </tr>
+      <tr>
+          <td>Prototype security</td>
+          <td>Demo gate and public artifacts</td>
+          <td>Unsuitable for sensitive data</td>
+          <td>Add production identity and data controls</td>
+      </tr>
+      <tr>
+          <td>Model risk monitoring absent</td>
+          <td>No PSI, calibration alert, or rollback rule</td>
+          <td>Degradation may go undetected</td>
+          <td>Define monitoring and governance plan</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="123-internal-external-and-construct-validity">12.3 Internal, external, and construct validity</h3>
+<p><strong>Internal validity</strong> is improved by outer holdout isolation and artifact identity testing, but weakened by duplicate overlap and non-nested WOE candidate CV. The final test result is more credible than the legacy global-WOE cross-validation score, yet it is not free from contamination risk.</p>
+<p><strong>External validity</strong> is limited because the data is public, randomly split, and lacks a documented economic or temporal context matching a particular lender. Performance can change sharply across countries, products, underwriting channels, and macroeconomic periods.</p>
+<p><strong>Construct validity</strong> depends on what <code>loan_status</code> represents and when it was observed. A production study must define the bad event, performance window, censoring rules, and treatment of early repayment or incomplete observation. The public dataset provides a binary target but not the full account-performance framework required for regulated model development.</p>
+<p><strong>Operational validity</strong> is limited by prototype security, untested concurrency, and the absence of a formal monitoring loop. A working Streamlit demonstration proves that the artifacts can be consumed. It does not prove that the system can safely support live applicants.</p>
+<h3 id="124-fairness-and-explainability">12.4 Fairness and explainability</h3>
+<p>Age was available in the raw data but not selected by the champion. Excluding an obvious sensitive or regulated variable does not establish fairness. Other variables can proxy demographic or socioeconomic characteristics, and errors can still differ across groups. A proper review should compare approval rates, true-positive rates, false-positive rates, calibration, and score distributions by legally relevant subgroup, while considering the policy and jurisdiction in which the model would operate.</p>
+<p>The feature-point explanation is useful for model transparency, but it is not automatically a causal explanation. A low contribution from home ownership means that the observed category was associated with risk in the training data after binning. It does not prove that changing home ownership would cause the applicant&rsquo;s credit behavior to change.</p>
+<h2 id="13-recommended-next-experiments">13. Recommended Next Experiments</h2>
+<p>The highest-value next work is methodological rather than cosmetic:</p>
+<ol>
+<li><strong>Create a canonical dataset contract.</strong> Add a stable row or entity identifier, explicit duplicate policy, source checksum, feature definitions, and missing-value semantics.</li>
+<li><strong>Rebuild nested validation.</strong> Fit cleaning, binning, WOE, IV selection, and logistic regression independently inside each cross-validation fold.</li>
+<li><strong>Add out-of-time testing.</strong> Split by application or origination date instead of random row order when temporal data becomes available.</li>
+<li><strong>Quantify uncertainty.</strong> Bootstrap AUC, KS, calibration, cutoff approval, and approved bad rate to provide confidence intervals.</li>
+<li><strong>Compare models fairly.</strong> Benchmark monotonic gradient boosting and other interpretable alternatives using identical partitions and feature-timing rules.</li>
+<li><strong>Calibrate on a later sample.</strong> Evaluate Platt scaling, isotonic regression, or intercept-only recalibration without contaminating the final test.</li>
+<li><strong>Build economic decisioning.</strong> Combine PD with LGD, EAD, revenue, acquisition cost, and review cost rather than optimize a classification statistic.</li>
+<li><strong>Complete fairness analysis.</strong> Measure subgroup errors and policy outcomes, document permitted variables, and test explanation requirements.</li>
+<li><strong>Add monitoring artifacts.</strong> Record training distributions, score PSI, feature PSI, missingness, calibration drift, and alert thresholds.</li>
+<li><strong>Harden deployment.</strong> Replace the demo gate, validate model package signatures, log model versions, and add row-level error handling for batch scoring.</li>
+</ol>
+<h2 id="14-discussion">14. Discussion</h2>
+<p>The project demonstrates a common tension in applied machine learning. The strongest statistical model is not always the correct deployment model. The nine-feature candidate achieved an AUC close to 0.883, substantially above the final 0.832 holdout result, but its use of grade and interest rate made the decision process ambiguous. Removing those fields reduced performance, yet produced a feature set that can be described at the proposed application point.</p>
+<p>That choice should not be romanticized. A 0.057 AUC reduction can matter economically. The correct response is not to ignore the loss, but to redesign the data and decision process. If the lender can define a preliminary rate or grade using only pre-decision information, that component should be modeled and validated explicitly. If the fields are outcomes of a separate underwriting model, they should not be fed back into an earlier-stage scorer without documenting the dependency.</p>
+<p>The QA history also shows why reproducibility is a model-quality attribute. The legacy AUC appeared strong, and the broken score table produced numbers in a plausible consumer-credit range for some applicants. Only a review of fitting order and a direct probability-to-score identity test revealed that the evidence was invalid. Model governance is therefore not an administrative layer added after data science. It is part of the scientific method used to decide which result can be believed.</p>
+<p>Finally, interpretability should be understood as a stack. Logistic regression coefficients provide global direction. WOE bins describe local risk groupings. Score points translate those effects into an operational scale. Calibration shows whether probabilities are numerically meaningful. Decision tables show what a cutoff would do to approvals and observed bad rates. Documentation explains feature timing and known limitations. Removing any layer makes the system harder to govern.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>This work produced an interpretable credit risk scoring prototype that connects data preparation, optimal binning, WOE transformation, candidate model selection, logistic regression, score scaling, artifact packaging, and a decision-support interface. The selected seven-feature pre-decision model achieved holdout AUC 0.83197, Gini 0.66394, KS 0.50109, Brier score 0.11289, and log loss 0.37090. Its calibration intercept of 0.0357 and slope of 1.0386 indicate reasonable global probability calibration on the available holdout.</p>
+<p>The most important result is not the headline AUC. The project established a defensible link between decision-time features, modeled probability, additive score points, and deployable artifacts. It also preserved the negative evidence: a stronger legacy metric was rejected because of target-informed preprocessing, an earlier scorecard was rejected because its point mapping was mathematically inconsistent, and the current result is presented with unresolved duplicate, selection, nesting, temporal, fairness, economic, and security limitations.</p>
+<p>Under those boundaries, the system is a useful educational scorecard and a credible foundation for further model-risk work. It is not yet a validated lending model. Moving from prototype to real decision support requires better population design, fully nested and temporal validation, economic cutoff optimization, subgroup analysis, monitoring, and production security.</p>
+<h2 id="project-materials">Project Materials</h2>
+<ul>
+<li><a href="https://github.com/Whoami-404-pip/Credit-Score-Model">Source code and reproducibility notebooks</a></li>
+<li><a href="https://github.com/Whoami-404-pip/Credit-Score-Model/blob/main/asset/Tech_Report.pdf">Project technical report</a></li>
+<li><a href="https://module-2-porsche-club.streamlit.app/">Interactive Streamlit demonstration</a></li>
+</ul>
+<h2 id="internal-evidence-reviewed">Internal Evidence Reviewed</h2>
+<p>This report was cross-checked against the local Module 2 working directory, including the cleaned and preprocessed datasets, <code>model_development_scorecard(1).ipynb</code>, the methodology and optimal-binning notes, the confusion-matrix analysis, the system framework document, and the dated QA master reviews from July 2026. Historical findings are identified as such and are not presented as metrics from the current public release.</p>
+
+            </div>
+
+            
+            
+            <div class="related-posts">
+                <h3>Related Content</h3>
+                <div class="related-grid">
+                    
+                    <div class="related-post">
+                        <h4><a href="http://localhost:1313/posts/ai-ctf/">AI CTF</a></h4>
+                        <div class="related-meta">
+                            2026.07.03 •
+                            
+                            
+                            
+                            
+                            
+                            ☕☕☕☕☕ 12 min read
+                        </div>
+                    </div>
+                    
+                    <div class="related-post">
+                        <h4><a href="http://localhost:1313/posts/ai-in-pentesting/">A Local-First Multi-Agent Framework for Evidence-Driven Web Penetration Testing</a></h4>
+                        <div class="related-meta">
+                            2026.06.12 •
+                            
+                            
+                            
+                            
+                            
+                            ☕☕☕☕☕ 36 min read
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+
+            
+            <nav class="post-navigation">
+                
+                <div class="nav-previous">
+                    <span class="nav-label">← Previous</span>
+                    <a href="http://localhost:1313/posts/ai-ctf/" class="nav-title">AI CTF</a>
+                </div>
+                
+
+                
+                <div class="nav-next">
+                    <span class="nav-label">Next →</span>
+                    <a href="http://localhost:1313/posts/prompt-injection-shield/" class="nav-title">Designing a Prompt-Injection Detection and Monitoring Pipeline for LLM Applications</a>
+                </div>
+                
+            </nav>
+        </article>
+
+        <aside class="sidebar">
+            <nav class="toc">
+                <h4>Contents</h4>
+                <div id="toc-content">
+                    
+                </div>
+            </nav>
+        </aside>
+        </div>
+    </div>
+</div>
+
+    </main>
+
+    
+
+    <script src="http://localhost:1313/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en-us" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>
+  AI CTF - KVV&#39;s blog
+</title>
+
+
+
+<meta name="description" content="AI CTFs have been one of my favorite things to explore lately. I found these challenges genuinely interesting, so I spent some time breaking them, understanding …" />
+
+
+
+<meta
+  property="og:title"
+  content="AI CTF"
+/>
+<meta
+  property="og:description"
+  content="AI CTFs have been one of my favorite things to explore lately. I found these challenges genuinely interesting, so I spent some time breaking them, understanding …"
+/>
+<meta
+  property="og:type"
+  content="article"
+/>
+<meta property="og:url" content="http://localhost:1313/posts/ai-ctf/" />
+<meta property="og:site_name" content="KVV&#39;s blog" />
+
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta
+  name="twitter:title"
+  content="AI CTF"
+/>
+<meta
+  name="twitter:description"
+  content="AI CTFs have been one of my favorite things to explore lately. I found these challenges genuinely interesting, so I spent some time breaking them, understanding …"
+/>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap"
+  rel="stylesheet"
+/>
+
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+
+
+<link rel="stylesheet" href="http://localhost:1313/css/style.css">
+
+
+
+</head>
+<body>
+    
+    <div class="reading-progress"></div>
+    
+
+    
+
+    <main>
+        
+
+<div class="post-overlay active">
+    <div class="post-overlay-backdrop"></div>
+    <div class="post-overlay-content" style="position: relative; min-height: 100vh; padding: 0; transform: translateY(0);">
+        <div class="post-overlay-header">
+            <div class="post-overlay-title">
+                <a href="/" class="overlay-site-title">KVV&#39;s blog</a>
+            </div>
+            <button class="post-overlay-close" aria-label="Close post" onclick="window.location.href='/'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="post-layout">
+        <article class="post-content">
+            <header class="post-header">
+                <div class="post-meta">
+                    <span class="post-date">2026.07.03</span>
+                    <div class="reading-time-post">
+                        <span class="coffee-cups">
+                            
+                            
+                            
+                            
+                                
+                            
+                            
+                                
+                            
+                                
+                            
+                                
+                            
+                                
+                            
+                                
+                            
+                            ☕☕☕☕☕
+                        </span>
+                        <span>12 min read</span>
+                    </div>
+                </div>
+                <h1 class="post-title">AI CTF</h1>
+                
+                <p class="post-subtitle">AI security challenge writeups</p>
+                
+
+                
+                <div class="post-tags-header">
+                    
+                    <a href="http://localhost:1313/tags/ai" class="post-tag">AI</a>
+                    
+                    <a href="http://localhost:1313/tags/ctf" class="post-tag">CTF</a>
+                    
+                    <a href="http://localhost:1313/tags/security" class="post-tag">security</a>
+                    
+                </div>
+                
+            </header>
+            <div class="post-body">
+                <p>AI CTFs have been one of my favorite things to explore lately. I found these challenges genuinely interesting, so I spent some time breaking them, understanding why the exploits worked, and writing down the full solve paths here. This is less of a formal report and more of my personal collection of solves, notes, and lessons learned along the way. =)))</p>
+<h2 id="level-5--bad-robot">Level 5 — Bad Robot</h2>
+<h3 id="result">Result:</h3>
+<ul>
+<li>flag: <code>flag-f2fea1</code></li>
+</ul>
+<p><img src="image-01.png" alt="AI CTF screenshot 1"></p>
+<h3 id="exploit">Exploit</h3>
+<ul>
+<li>
+<p>At first glance, the challenge appears to involve an AI chatbot used for mathematical computation. While solving it, the first question that came to mind was whether the bot could execute Python code provided by the user.</p>
+</li>
+<li>
+<p>So I tested it down by giving it this prompts:</p>
+</li>
+</ul>
+<p><img src="image-02.png" alt="AI CTF screenshot 2"></p>
+<p>→ A non-technical user may reasonably interpret <code>2^8</code> as “two to the power of eight,” expecting the result to be 256. However, the system processed the expression using Python syntax, in which <code>^</code> denotes the bitwise XOR operator, resulting in <code>2 XOR 8 = 10</code>.</p>
+<p>→ We can infer that the chatbot evaluates user input as executable expressions rather than interpreting it purely as natural-language mathematics.</p>
+<ul>
+<li>Next, I test what module has been imported to this chatbox, by testing some python modules:</li>
+</ul>
+<p><img src="image-03.png" alt="AI CTF screenshot 3"></p>
+<p>→ from this output, we can conclude that this chatbox is not only doing safe arithmetic. It is evaluating python expressions with some bultins enabled, but it blocks some output types like <code>strings</code>, <code>lists</code>, <code>dicts</code></p>
+<p><img src="image-04.png" alt="AI CTF screenshot 4"></p>
+<p>→ The number output is allowed → so we can try to change the flag in string type to number type using:</p>
+<p><code>int.from_bytes(open(&quot;flag.txt&quot;).read().encode(), &quot;big&quot;)</code></p>
+<p><img src="image-05.png" alt="AI CTF screenshot 5"></p>
+<p>→ we got the flag, decode it give us flag <code>flag-f2fea1</code></p>
+<p><img src="image-06.png" alt="AI CTF screenshot 6"></p>
+<p>→ challenge completed</p>
+<h3 id="root-cause">Root Cause</h3>
+<p>The design failure had three parts:</p>
+<ol>
+<li>Untrusted input crossed into code evaluation</li>
+</ol>
+<ul>
+<li>The user message was converted into an expression and passed to the calculator backend. That backend accepted Python constructs and builtins like:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">abs()
+</span></span><span class="line"><span class="ln">2</span><span class="cl">dir()
+</span></span><span class="line"><span class="ln">3</span><span class="cl">globals()
+</span></span><span class="line"><span class="ln">4</span><span class="cl">open()
+</span></span><span class="line"><span class="ln">5</span><span class="cl">int.from_bytes()
+</span></span><span class="line"><span class="ln">6</span><span class="cl">chr()
+</span></span></code></pre></div><ul>
+<li>So the tool boundary was not “math expression in, numeric result out”. It was effectively:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">eval(user_expression)
+</span></span></code></pre></div><p>or something close enough to it.</p>
+<ol>
+<li>The calculator had access to local application files</li>
+</ol>
+<ul>
+<li>The expression runtime could call:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">open(&#34;flag.txt&#34;).read()
+</span></span></code></pre></div><p>That means the sandbox did not isolate the evaluator from the filesystem. A math service should not have file I/O permissions, especially not access to the challenge secret.</p>
+<ol>
+<li>The output filter was treated as security</li>
+</ol>
+<p>The tool blocked direct string/list/dict output with:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">Output format not supported
+</span></span></code></pre></div><p>But the expression still executed. The filter only restricted display format, not capability. Since numeric output was allowed, the file contents could be transformed into a number:</p>
+<p><code>int.from_bytes(open(&quot;flag.txt&quot;).read().encode(), &quot;big&quot;)</code></p>
+<h3 id="impact--severity">Impact &amp; Severity</h3>
+<p>Impact in a real system would be arbitrary local file disclosure through the agent tool runtime.</p>
+<p>An attacker with access to the chat could make the “calculator” read files that the backend process can access, for example:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">open(&#34;flag.txt&#34;).read()
+</span></span><span class="line"><span class="ln">2</span><span class="cl">open(&#34;.env&#34;).read()
+</span></span><span class="line"><span class="ln">3</span><span class="cl">open(&#34;/app/config.py&#34;).read()
+</span></span><span class="line"><span class="ln">4</span><span class="cl">open(&#34;/var/run/secrets/...&#34;).read()
+</span></span></code></pre></div><p>In a production agent, this could expose:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">API keys
+</span></span><span class="line"><span class="ln">2</span><span class="cl">JWT secrets
+</span></span><span class="line"><span class="ln">3</span><span class="cl">database credentials
+</span></span><span class="line"><span class="ln">4</span><span class="cl">cloud metadata or service tokens
+</span></span><span class="line"><span class="ln">5</span><span class="cl">source code
+</span></span><span class="line"><span class="ln">6</span><span class="cl">internal prompts
+</span></span><span class="line"><span class="ln">7</span><span class="cl">user data
+</span></span><span class="line"><span class="ln">8</span><span class="cl">configuration files
+</span></span><span class="line"><span class="ln">9</span><span class="cl">deployment secrets
+</span></span></code></pre></div><p>The confirmed impact in this challenge was reading flag.txt. The same primitive would normally be enough to leak secrets from the application container.</p>
+<p>Severity: High</p>
+<h3 id="mapping">Mapping</h3>
+<p>LLM02:2025 Sensitive Information Disclosure</p>
+<p>→ the vulnerable tool allowed extraction of sensitive data from the runtime, in this case
+flag.txt.</p>
+<p>LLM06:2025 Excessive Agency</p>
+<p>→ the agent’s tool had more capability than required. A calculator should evaluate arithmetic only, but this tool had access to Python builtins and filesystem I/O.</p>
+<h2 id="level-7--master-of-resources">Level 7 — Master of Resources</h2>
+<h3 id="result-1">Result</h3>
+<ul>
+<li>flag: <code>flag-e9714a</code></li>
+</ul>
+<p><img src="image-07.png" alt="AI CTF screenshot 7"></p>
+<p><img src="image-08.png" alt="AI CTF screenshot 8"></p>
+<h3 id="exploit-1">Exploit</h3>
+<p><img src="image-09.png" alt="AI CTF screenshot 9"></p>
+<ul>
+<li>
+<p>Level 7 exposes an MCP server even though the normal agent interface is mostly unavailable.</p>
+</li>
+<li>
+<p>Visit this site : <a href="https://modelcontextprotocol.io/specification">https://modelcontextprotocol.io/specification</a> . I know that client must send the <code>Initialize</code> to negotiate protocol version. In the example, they use <code>&quot;protocolVersion&quot;: &quot;2025-06-18&quot;</code> and by searching, I found various date that can be used like</p>
+</li>
+</ul>
+<p><img src="image-10.png" alt="AI CTF screenshot 10"></p>
+<p>→ Then I try to use each date provided, what return 200 will be chosen</p>
+<ul>
+<li>But the chatbox give us a link <a href="https://ctf.arkx.ninja/level/7/mcp"><code>/level/7/mcp</code></a></li>
+</ul>
+<p><img src="image-11.png" alt="AI CTF screenshot 11"></p>
+<p>→ When access to the link, we know that:</p>
+<ul>
+<li>
+<p>the response is in <code>JSON-RPC</code> , not <code>HTML</code></p>
+</li>
+<li>
+<p>Endpoint is <code>MCP/JSON-RPC</code> server</p>
+</li>
+<li>
+<p><code>GET</code> can only touch endpoint → we can try to change method to <code>POST</code> , …</p>
+</li>
+<li>
+<p>use burp suite to send request</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln">1</span><span class="cl"><span class="n">POST</span> <span class="o">/</span><span class="n">level</span><span class="o">/</span><span class="mi">7</span><span class="o">/</span><span class="n">mcp</span> <span class="n">HTTP</span><span class="o">/</span><span class="mi">2</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="n">Host</span><span class="p">:</span> <span class="n">ctf</span><span class="o">.</span><span class="n">arkx</span><span class="o">.</span><span class="n">ninja</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="n">Cookie</span><span class="p">:</span> <span class="n">idToken</span><span class="o">=</span><span class="n">REDACTED</span><span class="p">;</span> <span class="n">accessToken</span><span class="o">=</span><span class="n">REDACTED</span><span class="p">;</span> <span class="n">refreshToken</span><span class="o">=</span><span class="n">REDACTED</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="n">sessionId</span><span class="o">=</span><span class="mi">15780831</span><span class="n">c731</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="n">application</span><span class="o">/</span><span class="n">json</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="n">Accept</span><span class="p">:</span> <span class="n">application</span><span class="o">/</span><span class="n">json</span><span class="p">,</span> <span class="n">text</span><span class="o">/</span><span class="n">event</span><span class="o">-</span><span class="n">stream</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="n">MCP</span><span class="o">-</span><span class="n">Protocol</span><span class="o">-</span><span class="n">Version</span><span class="p">:</span> <span class="mi">2025</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">18</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl"> <span class="p">{</span><span class="s2">&#34;jsonrpc&#34;</span><span class="p">:</span><span class="s2">&#34;2.0&#34;</span><span class="p">,</span><span class="s2">&#34;id&#34;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&#34;method&#34;</span><span class="p">:</span><span class="s2">&#34;initialize&#34;</span><span class="p">,</span><span class="s2">&#34;params&#34;</span><span class="p">:{</span><span class="s2">&#34;protocolVersion&#34;</span><span class="p">:</span><span class="s2">&#34;2025-06-</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="mi">18</span><span class="s2">&#34;,&#34;</span><span class="n">capabilities</span><span class="s2">&#34;:</span><span class="si">{}</span><span class="s2">,&#34;</span><span class="n">clientInfo</span><span class="s2">&#34;:{&#34;</span><span class="n">name</span><span class="s2">&#34;:&#34;</span><span class="n">burp</span><span class="s2">&#34;,&#34;</span><span class="n">version</span><span class="s2">&#34;:&#34;</span><span class="mf">1.0</span><span class="s2">&#34;}}}</span>
+</span></span></code></pre></div><p><img src="image-12.png" alt="AI CTF screenshot 12"></p>
+<p>→ This mean, we have send the correct version, correct protocol. And we have leaked the <code>mcp-session-id</code> for further request</p>
+<ul>
+<li>
+<p>Next, we inspect what have inside this MCP</p>
+</li>
+<li>
+<p>Flow</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">1. client -&gt; server: initialize
+</span></span><span class="line"><span class="ln">2</span><span class="cl">2. server -&gt; client: result + capabilities + Mcp-Session-Id
+</span></span><span class="line"><span class="ln">3</span><span class="cl">3. client -&gt; server: notifications/initialized
+</span></span><span class="line"><span class="ln">4</span><span class="cl">4. client -&gt; server: tools/list, resources/list, tools/call, resources/read...
+</span></span></code></pre></div><ul>
+<li>Sending initialize → notifications/initialized</li>
+</ul>
+<p><img src="image-13.png" alt="AI CTF screenshot 13"></p>
+<ul>
+<li>then send tools/list to extract data</li>
+</ul>
+<p><img src="image-14.png" alt="AI CTF screenshot 14"></p>
+<p>→ we see here, there is a tool name <code>unlock_flag</code> → call that tool</p>
+<p><img src="image-15.png" alt="AI CTF screenshot 15"></p>
+<p>→ read flag</p>
+<p><img src="image-16.png" alt="AI CTF screenshot 16"></p>
+<p><img src="image-17.png" alt="AI CTF screenshot 17"></p>
+<p>→ done</p>
+<p><img src="image-18.png" alt="AI CTF screenshot 18"></p>
+<h3 id="root-cause-1">Root cause</h3>
+<p>The vulnerability exists because the MCP resource server is exposed directly to the authenticated client, while access control is implicitly trusted to the broken/main agent interface. Even though the normal UI/tool route is unavailable, the underlying <code>/level/7/mcp</code> endpoint still accepts raw MCP JSON-RPC calls.</p>
+<p>The design issue is not the specific payload itself, but that sensitive MCP capabilities are reachable without proper server-side authorization. An authenticated user can initialize an MCP session, enumerate tools/resources, call unlock_flag, and then read <code>resource://flag</code> directly. The server treats the client as a trusted MCP client instead of enforcing least privilege per tool/resource.</p>
+<h3 id="impact--severity-1"><strong>Impact &amp; Severity</strong></h3>
+<p>Impact in the CTF: any authenticated user who discovers the MCP endpoint can bypass the intended interface and retrieve the flag resource directly.</p>
+<p>Real-world impact: an attacker could enumerate hidden agent capabilities, invoke tools that should only be used by the agent, and read sensitive resources exposed through the MCP server. Depending on the tools connected to the agent, this could lead to data leakage, privilege escalation, unauthorized workflow execution, or secret disclosure.</p>
+<p>Severity: High. Exploitation requires authentication, but complexity is low and the result is direct access to sensitive protected data. If the MCP endpoint were exposed without authentication, this would likely become Critical.</p>
+<h3 id="mapping-1"><strong>Mapping</strong></h3>
+<p>LLM06:2025 Excessive Agency. The agent/tooling layer has excessive reachable functionality and insufficient permission scoping. OWASP describes this class around LLM systems being granted access to functions/tools/plugins and suffering from excessive functionality, permissions, or autonomy.</p>
+<p>LLM02:2025 Sensitive Information Disclosure, because the final result is disclosure of a protected secret resource. If the rubric uses the older 2023/2024 OWASP LLM Top 10, this also maps well to LLM07: Insecure Plugin Design.</p>
+<h2 id="level-9--blind-network-ninja">Level 9 — Blind Network Ninja</h2>
+<h3 id="result-2">Result</h3>
+<ul>
+<li>flag: <code>flag-e8f7a1</code></li>
+</ul>
+<p><img src="image-19.png" alt="AI CTF screenshot 19"></p>
+<p><img src="image-20.png" alt="AI CTF screenshot 20"></p>
+<h3 id="exploit-2">Exploit</h3>
+<p><img src="image-21.png" alt="AI CTF screenshot 21"></p>
+<p>→ provided a fake hostname → offline</p>
+<p><img src="image-22.png" alt="AI CTF screenshot 22"></p>
+<ul>
+<li>but when i test a real hostname → offline too</li>
+</ul>
+<p><img src="image-23.png" alt="AI CTF screenshot 23"></p>
+<p>—&gt; so my thought here is: the hostname here is blocked/isolated for accessed by the chatbox, so it return <code>offline</code> or not? To answer this question, i think we should know how the chatbox could return <code>Online</code> or <code>Offline</code> when we access the server. My guess is, it use system(”ping + hostname_input”), so if the chatbox is in sandbox/isolated terminal, it will return <code>Offline</code> for valid hostname, because it can not execute in the system</p>
+<ul>
+<li>I try another way =))) hopefully it will return  <code>online</code> , i try to <code>command inject</code> the chatbox</li>
+</ul>
+<p><img src="image-24.png" alt="AI CTF screenshot 24"></p>
+<p>→ my guess here is the chatbox can only execute the <code>cat</code> function, next time try <code>cat /proc/sys/kernel/hostname</code> because it exist in every container.</p>
+<ul>
+<li>
+<p>by this we confirm that this chatbox has <code>command injection</code> bug</p>
+</li>
+<li>
+<p>Furthermore, we can not read the flag because the chatbox only return <code>online</code> or <code>offline</code>, so we must connect to our server and call URL locally</p>
+</li>
+<li>
+<p>OK, we can access logs</p>
+</li>
+</ul>
+<p><img src="image-25.png" alt="AI CTF screenshot 25"></p>
+<p><img src="image-26.png" alt="AI CTF screenshot 26"></p>
+<ul>
+<li>
+<p>So I create a path then put the flag in =) so that i can read it from logs</p>
+</li>
+<li>
+<p>i call that path /leak5vevpp/&lt;flag_name&gt;, then i will replace the flag name with a command that will leak that flag_name</p>
+</li>
+<li>
+<p><code>$(cat /proc/self/cwd/fla?.txt)</code></p>
+</li>
+</ul>
+<p>→ this command will find the flag then print it out</p>
+<p><img src="image-27.png" alt="AI CTF screenshot 27"></p>
+<p>→ <code>online</code> means we right</p>
+<p>→ we got the flagggg</p>
+<p><img src="image-28.png" alt="AI CTF screenshot 28"></p>
+<p><img src="image-29.png" alt="AI CTF screenshot 29"></p>
+<h3 id="root-cause-2">Root cause</h3>
+<ul>
+<li>The agent’s check_connectivity tool passes an untrusted “host” string into a shell command without strict validation or argument separation. The tool is supposed to accept only a hostname/IP and return a coarse status. Instead, the input is interpreted by a shell, so shell metacharacters like <code>;</code> and <code>$()</code> keep their special meaning:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">zz.invalid; curl http://127.0.0.1/leak/$(cat /proc/self/cwd/fla?.txt); cat /proc/sys/kernel/hostname
+</span></span></code></pre></div><p>That means the “host” parameter becomes command syntax, not data. There are two design issues:</p>
+<ol>
+<li>Command injection in the tool implementation</li>
+</ol>
+<p>The tool likely does something equivalent to:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">os.system(f&#34;ping {target}&#34;)
+</span></span></code></pre></div><p>or:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">subprocess.run(f&#34;ping {target}&#34;, shell=True)
+</span></span></code></pre></div><p>A safe design would use an argument array and validation:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">subprocess.run([&#34;ping&#34;, &#34;-c&#34;, &#34;1&#34;, target], shell=False)
+</span></span></code></pre></div><p>plus a hostname/IP allowlist regex.</p>
+<ol start="2">
+<li>The agent is allowed to pass attacker-controlled strings directly into tools</li>
+</ol>
+<ul>
+<li>
+<p>The LLM decides tool arguments from user text. If the tool boundary is not hardened, prompt text becomes executable input.</p>
+</li>
+<li>
+<p>The challenge is “blind” because stdout is hidden: the tool only returns Online or Offline. But the design still allows side effects. Since the same level exposes local HTTP logs, injected curl can send sensitive file contents into a URL path, and /level/9/logs records it.</p>
+</li>
+</ul>
+<h3 id="impact--severity-2">Impact &amp; severity</h3>
+<p>A real attacker could gain:</p>
+<ul>
+<li>
+<p>Arbitrary command execution inside the agent/tool container.</p>
+</li>
+<li>
+<p>Sensitive file disclosure, as shown by reading flag.txt.</p>
+</li>
+<li>
+<p>Credential/token theft if environment variables, mounted secrets, API keys, or service account tokens are accessible.</p>
+</li>
+<li>
+<p>Internal network access/SSRF, because the injected command can call <code>127.0.0.1</code> or internal services.</p>
+</li>
+<li>
+<p>Lateral movement if the container has network reachability to databases, metadata services, admin APIs, or other pods.</p>
+</li>
+<li>
+<p>Persistence or tampering if the process user can write files or modify agent state.</p>
+</li>
+<li>
+<p>Data exfiltration despite blind output, using side channels like HTTP logs, DNS, webhooks, timing, or outbound requests.</p>
+</li>
+</ul>
+<p>In this challenge, the demonstrated impact was:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">Blind command injection -&gt; read flag file -&gt; exfiltrate via local HTTP logs
+</span></span></code></pre></div><p>In a real agent system, the same bug could expose secrets such as:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">OPENAI_API_KEY
+</span></span><span class="line"><span class="ln">2</span><span class="cl">AWS_ACCESS_KEY_ID
+</span></span><span class="line"><span class="ln">3</span><span class="cl">KUBERNETES_SERVICE_HOST
+</span></span><span class="line"><span class="ln">4</span><span class="cl">database credentials
+</span></span><span class="line"><span class="ln">5</span><span class="cl">JWT signing keys
+</span></span><span class="line"><span class="ln">6</span><span class="cl">internal admin tokens
+</span></span></code></pre></div><ul>
+<li>Severity: High</li>
+</ul>
+<h3 id="mapping-2">Mapping</h3>
+<p>LLM07: Insecure Plugin Design → because the root bug is the unsafe tool boundary, not just the prompt.</p>
+<h2 id="level-6-the-shape-shifter">Level 6: The Shape Shifter</h2>
+<h3 id="result-3">Result</h3>
+<p>-flag: <strong>flag-f96bef</strong></p>
+<p><img src="image-30.png" alt="AI CTF screenshot 30"></p>
+<h3 id="exploit-3">Exploit</h3>
+<ul>
+<li>
+<p>So the chatbox require us to submit YAML configuration data and then it will extract and summarize the settings</p>
+</li>
+<li>
+<p>First, I will send a YAML data and see what this chatbox return</p>
+</li>
+</ul>
+<p><img src="image-31.png" alt="AI CTF screenshot 31"></p>
+<p>→ It return the key</p>
+<ul>
+<li>As we know, YAML can call python object. So if PyYAML use unsafe loader, it can understand some special strings that can cause RCE, so I will test it down</li>
+</ul>
+<p><img src="image-32.png" alt="AI CTF screenshot 32"></p>
+<p>→ At this time, we know that the chatbox can execute linux command shell</p>
+<p>→ This is so easy after that, we just call ls -al to know where the flag is and get the flag =)</p>
+<p><img src="image-33.png" alt="AI CTF screenshot 33"></p>
+<p><img src="image-34.png" alt="AI CTF screenshot 34"></p>
+<p>→ done</p>
+<h3 id="rootcause">Rootcause</h3>
+<ul>
+<li>The system used unsafe YAML deserialization (yaml.load() instead of yaml.safe_load()), allowing you to execute arbitrary Python code through !!python/object tags in the YAML payload.</li>
+</ul>
+<h3 id="impact--severity-3">Impact &amp; Severity</h3>
+<ul>
+<li>
+<p>Insecure deserialization vulnerabilities allow attackers to execute arbitrary code, leading to remote code execution, data exfiltration, or complete system compromise. YAML&rsquo;s ability to deserialize Python objects makes it particularly dangerous when used with unsafe loaders.</p>
+</li>
+<li>
+<p>Severity: HIgh</p>
+</li>
+</ul>
+<h3 id="mapping-3">Mapping</h3>
+<ul>
+<li>
+<p>LLM06:2025 Excessive Agency</p>
+</li>
+<li>
+<p>the LLM app exposed a backend tool, process_config, that accepted user-controlled YAML. Because the tool used unsafe YAML deserialization, a “configuration processor” effectively became a command-execution primitive.OWASP defines Excessive Agency around LLM systems being able to call tools/functions and causing damaging actions through excessive functionality,permissions, or autonomy. It also specifically warns against open-ended tool behavior such as shell-command capability.</p>
+</li>
+</ul>
+<p>Source: OWASP LLM06 Excessive Agency, lines 53-65 and 78-100.
+<a href="https://genai.owasp.org/llmrisk/llm062025-excessive-agency/">https://genai.owasp.org/llmrisk/llm062025-excessive-agency/</a></p>
+<h2 id="level-7-the-octopus">Level 7: The Octopus</h2>
+<h3 id="result-4">Result</h3>
+<ul>
+<li>flag: <strong>flag-0b7438</strong></li>
+</ul>
+<p><img src="image-35.png" alt="AI CTF screenshot 35"></p>
+<h3 id="exploit-4">Exploit</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">Agent A: utilities
+</span></span><span class="line"><span class="ln">2</span><span class="cl">Agent B: files/cache
+</span></span><span class="line"><span class="ln">3</span><span class="cl">Agent C: clearance/root flag
+</span></span></code></pre></div><ul>
+<li>First, let ask what it can do</li>
+</ul>
+<p><img src="image-36.png" alt="AI CTF screenshot 36"></p>
+<p>→ so we need <code>PRIVILEGDE</code> from admin session here, i just ask =)))</p>
+<p><img src="image-37.png" alt="AI CTF screenshot 37"></p>
+<ul>
+<li>but it wont allow me to get the session ID =(((( so I give it my session ID, hopefully it will return something back</li>
+</ul>
+<p><img src="image-38.png" alt="AI CTF screenshot 38"></p>
+<ul>
+<li>it is not give me anything, hmmm, maybe try to paraphrase the prompt?</li>
+</ul>
+<p><img src="image-39.png" alt="AI CTF screenshot 39"></p>
+<p>→ It leak one thing that even better than sessionID</p>
+<ul>
+<li>
+<p>It said that we must have the <code>'GRANT_ROOT_READ_FOR_SESSION_778'</code>  to do administrator things</p>
+</li>
+<li>
+<p>But our key is just <code>NO_PRIVILEGE</code> key → we need to change it, so that we can read flag from agent C</p>
+</li>
+<li>
+<p>Look at agent B, it have 2 important tools : <code>upload_file</code> and <code>process_cache_update</code></p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">1. upload_file(&#34;.....&#34;)
+</span></span><span class="line"><span class="ln">2</span><span class="cl">   -&gt; return file_id
+</span></span><span class="line"><span class="ln">3</span><span class="cl"> 2. process_cache_update(...)
+</span></span><span class="line"><span class="ln">4</span><span class="cl">   -&gt; use that file_id to update cache/session
+</span></span></code></pre></div><ul>
+<li>what I do is, create a prompt that will do 3 things:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="ln">1</span><span class="cl">1. Agent B upload admin key
+</span></span><span class="line"><span class="ln">2</span><span class="cl">2. Agent B use file_id to update session
+</span></span><span class="line"><span class="ln">3</span><span class="cl">3. Agent C read flag
+</span></span></code></pre></div><ul>
+<li>Why not do 1 thing at a prompt? Because, the file_id we use in step2 is from step1 so, the seperation prompt might get us wrong</li>
+</ul>
+<p><img src="image-40.png" alt="AI CTF screenshot 40"></p>
+<h3 id="rootcause-1">Rootcause</h3>
+<ul>
+<li>
+<p>A discrepancy between how the security filter (Regex) and the application parser (JSON) handled duplicate keys allowed malicious data to bypass checks.</p>
+</li>
+<li>
+<p>&ldquo;Parser differentials&rdquo; occur when two different systems interpret the same data differently. Here, the Regex saw the first &ldquo;safe&rdquo; status, but the JSON parser respected the last &ldquo;error&rdquo; status.</p>
+</li>
+<li>
+<p>Agent C trusts session cache for authorization.</p>
+</li>
+<li>
+<p>Agent B can write to that same session cache.</p>
+</li>
+<li>
+<p>Agent B does not enforce that privilege keys are protected.Therefore, a user can make Agent B write the administrator key into their own session.</p>
+</li>
+</ul>
+<h3 id="impact--severity-4">Impact &amp; Severity</h3>
+<ul>
+<li>
+<p>Unauthorized privilege escalation</p>
+</li>
+<li>
+<p>Unauthorized access to protected flag/secret</p>
+</li>
+<li>
+<p>Bypass of Agent C’s clearance check</p>
+</li>
+<li>
+<p>Cross-agent trust boundary violation</p>
+</li>
+<li>
+<p>Potential arbitrary modification of session authorization state</p>
+</li>
+<li>
+<p>Severity: High (can use to privilege escalation)</p>
+</li>
+</ul>
+<h3 id="mapping-4">Mapping</h3>
+<p>LLM06:2025 Excessive Agency</p>
+<p>Reason: Agent B had too much authority. A lower-privileged file/cache agent could modify authorization state trusted by Agent C. OWASP defines Excessive Agency as damaging actions performed through overly capable LLM/tool behavior.
+Source: OWASP LLM Top 10 / LLM06 page. (<a href="http://genai.owasp.org/">genai.owasp.org</a>
+(<a href="https://genai.owasp.org/llmrisk/llm06-sensitive-information-disclosure/?utm_source=openai">https://genai.owasp.org/llmrisk/llm06-sensitive-information-disclosure/?utm_source=openai</a>))</p>
+<p>LLM01:2025 Prompt Injection</p>
+<p>Reason: The exploit used crafted prompts to make agents chain tool calls in an unintended way. OWASP describes prompt injection as manipulating model behavior through inputs. (<a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/?utm_source=openai">https://genai.owasp.org/llmrisk/llm01-prompt-injection/?utm_source=openai</a>))utm_source=openai))</p>
+<h2 id="level-8-the-heist">Level 8: The Heist</h2>
+<h3 id="result-5">Result</h3>
+<ul>
+<li>flag: <strong>flag-dee6e5</strong></li>
+</ul>
+<p><img src="image-41.png" alt="AI CTF screenshot 41"></p>
+<h3 id="exploit-5">Exploit</h3>
+<ul>
+<li>This is a trading chatbox with 3 tools</li>
+</ul>
+<p><img src="image-42.png" alt="AI CTF screenshot 42"></p>
+<ul>
+<li>and what the chatbox provided</li>
+</ul>
+<p><img src="image-43.png" alt="AI CTF screenshot 43"></p>
+<p>→ so we need to buy <code>Fragment_A</code> and <code>Fragment_B</code> but each cost $1000 while we only have $1000 in balance</p>
+<ul>
+<li>So I think about race condition =)))) maybe when execute 2 order at a time, it will work</li>
+</ul>
+<p><img src="image-44.png" alt="AI CTF screenshot 44"></p>
+<p><img src="image-45.png" alt="AI CTF screenshot 45"></p>
+<h3 id="rootcause-2">Rootcause</h3>
+<ul>
+<li>
+<p>I forced the agent to process two transactions in parallel. Both checks saw sufficient funds ($1000) before either deduction occurred, allowing you to spend the same money twice.</p>
+</li>
+<li>
+<p>Agentic workflows often separate &ldquo;Reasoning&rdquo; (Check) from &ldquo;Action&rdquo; (Execution) by seconds or minutes. If the underlying state changes during this gap (e.g., balance updates), the agent acts on stale data.</p>
+</li>
+</ul>
+<h3 id="impact--severity-5">Impact &amp; Severity</h3>
+<ul>
+<li>
+<p>Double-spending account credit</p>
+</li>
+<li>
+<p>Unauthorized purchases</p>
+</li>
+<li>
+<p>Negative or inconsistent balances</p>
+</li>
+<li>
+<p>Inventory theft</p>
+</li>
+<li>
+<p>Financial loss</p>
+</li>
+<li>
+<p>Fraudulent order completion</p>
+</li>
+</ul>
+<p>Severity: High</p>
+<h3 id="mapping-5">Mapping</h3>
+<p>LLM06:2025 Excessive Agency</p>
+<ul>
+<li>the LLM agent had tool authority to create and execute financial orders, and could be instructed to perform unsafe parallel actions without proper backend guardrails. OWASP lists Excessive Agency as the risk where LLM systems can perform damaging actions through excessive autonomy/tool permissions. Source: OWASP LLM Top 10, LLM06:2025 Excessive Agency / LLM08 on older pages. <a href="https://genai.owasp.org/llm-top-10/">https://genai.owasp.org/llm-top-10/</a> and
+<a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/">https://owasp.org/www-project-top-10-for-large-language-model-applications/</a></li>
+</ul>
+
+            </div>
+
+            
+            
+            <div class="related-posts">
+                <h3>Related Content</h3>
+                <div class="related-grid">
+                    
+                    <div class="related-post">
+                        <h4><a href="http://localhost:1313/posts/ai-in-pentesting/">A Local-First Multi-Agent Framework for Evidence-Driven Web Penetration Testing</a></h4>
+                        <div class="related-meta">
+                            2026.06.12 •
+                            
+                            
+                            
+                            
+                            
+                            ☕☕☕☕☕ 36 min read
+                        </div>
+                    </div>
+                    
+                    <div class="related-post">
+                        <h4><a href="http://localhost:1313/posts/kmactf-2026-writeups/">KMACTF 2026 Writeups</a></h4>
+                        <div class="related-meta">
+                            2026.05.15 •
+                            
+                            
+                            
+                            
+                            
+                            ☕☕☕☕☕ 20 min read
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+
+            
+            <nav class="post-navigation">
+                
+                <div class="nav-previous">
+                    <span class="nav-label">← Previous</span>
+                    <a href="http://localhost:1313/posts/ai-in-pentesting/" class="nav-title">A Local-First Multi-Agent Framework for Evidence-Driven Web Penetration Testing</a>
+                </div>
+                
+
+                
+                <div class="nav-next">
+                    <span class="nav-label">Next →</span>
+                    <a href="http://localhost:1313/posts/credit-score-model/" class="nav-title">Interpretable Credit Risk Scoring with WOE and Logistic Regression</a>
+                </div>
+                
+            </nav>
+        </article>
+
+        <aside class="sidebar">
+            <nav class="toc">
+                <h4>Contents</h4>
+                <div id="toc-content">
+                    
+                </div>
+            </nav>
+        </aside>
+        </div>
+    </div>
+</div>
+
+    </main>
+
+    
+
+    <script src="http://localhost:1313/js/main.js"></script>
+</body>
+</html>

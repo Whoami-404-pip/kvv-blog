@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Forensics on KVV&#39;s blog</title>
+    <link>http://localhost:1313/tags/forensics/</link>
+    <description>Recent content in Forensics on KVV&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 15 May 2026 02:00:00 +0700</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/forensics/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>KMACTF 2026 Writeups</title>
+      <link>http://localhost:1313/posts/kmactf-2026-writeups/</link>
+      <pubDate>Fri, 15 May 2026 02:00:00 +0700</pubDate>
+      <guid>http://localhost:1313/posts/kmactf-2026-writeups/</guid>
+      <description>&lt;h2 id=&#34;contents&#34;&gt;Contents&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;Pwn:&lt;/strong&gt; Cyberchef, BabyWarmup, s3idc3rt&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Web:&lt;/strong&gt; ChatGPT Made Me Do It, thousandsoflightyears, KMA Labs Developer Portal, NO AI NO LIFE, DeepSeek Made Me Do It, DeepSeek Made Me Do It Revenge&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Forensics:&lt;/strong&gt; CCTV&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;pwn&#34;&gt;Pwn&lt;/h2&gt;&#xA;&lt;h3 id=&#34;cyberchef&#34;&gt;Cyberchef&lt;/h3&gt;&#xA;&lt;h4 id=&#34;program-behavior&#34;&gt;Program behavior&lt;/h4&gt;&#xA;&lt;p&gt;The program reads up to 1,023 characters from the flag file into the global buffer &lt;code&gt;::s1&lt;/code&gt;. If the flag is available, it prints the banner and supported encodings, then enters the encoding loop.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

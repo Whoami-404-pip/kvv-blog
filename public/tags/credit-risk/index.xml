@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Credit Risk on KVV&#39;s blog</title>
+    <link>http://localhost:1313/tags/credit-risk/</link>
+    <description>Recent content in Credit Risk on KVV&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 15 Jul 2026 00:25:00 +0700</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/credit-risk/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Interpretable Credit Risk Scoring with WOE and Logistic Regression</title>
+      <link>http://localhost:1313/posts/credit-score-model/</link>
+      <pubDate>Wed, 15 Jul 2026 00:25:00 +0700</pubDate>
+      <guid>http://localhost:1313/posts/credit-score-model/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;Project:&lt;/strong&gt; Credit Risk Scoring and Decision Support System&lt;br&gt;&#xA;&lt;strong&gt;Team:&lt;/strong&gt; Porsche Club, AIO Conquer&lt;br&gt;&#xA;&lt;strong&gt;Contributors:&lt;/strong&gt; Trần Phương Bình, Đào Trung Can, Cao Bá Hoàng, Nguyễn Tùng, Vũ Khánh Vy&lt;br&gt;&#xA;&lt;strong&gt;My role:&lt;/strong&gt; QA / Reviewer&lt;br&gt;&#xA;&lt;strong&gt;Repository:&lt;/strong&gt; &lt;a href=&#34;https://github.com/Whoami-404-pip/Credit-Score-Model&#34;&gt;Whoami-404-pip/Credit-Score-Model&lt;/a&gt;&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;This article is a project report written in the style of a small technical paper. It documents an educational, deployment-oriented prototype. It is not a peer-reviewed study, a bank-approved model, or a recommendation to automate real lending decisions.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

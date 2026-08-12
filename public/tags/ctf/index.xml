@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CTF on KVV&#39;s blog</title>
+    <link>http://localhost:1313/tags/ctf/</link>
+    <description>Recent content in CTF on KVV&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 03 Jul 2026 20:05:03 +0700</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/ctf/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>AI CTF</title>
+      <link>http://localhost:1313/posts/ai-ctf/</link>
+      <pubDate>Fri, 03 Jul 2026 20:05:03 +0700</pubDate>
+      <guid>http://localhost:1313/posts/ai-ctf/</guid>
+      <description>&lt;p&gt;AI CTFs have been one of my favorite things to explore lately. I found these challenges genuinely interesting, so I spent some time breaking them, understanding why the exploits worked, and writing down the full solve paths here. This is less of a formal report and more of my personal collection of solves, notes, and lessons learned along the way. =)))&lt;/p&gt;&#xA;&lt;h2 id=&#34;level-5--bad-robot&#34;&gt;Level 5 — Bad Robot&lt;/h2&gt;&#xA;&lt;h3 id=&#34;result&#34;&gt;Result:&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;flag: &lt;code&gt;flag-f2fea1&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;&lt;img src=&#34;image-01.png&#34; alt=&#34;AI CTF screenshot 1&#34;&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>KMACTF 2026 Writeups</title>
+      <link>http://localhost:1313/posts/kmactf-2026-writeups/</link>
+      <pubDate>Fri, 15 May 2026 02:00:00 +0700</pubDate>
+      <guid>http://localhost:1313/posts/kmactf-2026-writeups/</guid>
+      <description>&lt;h2 id=&#34;contents&#34;&gt;Contents&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;Pwn:&lt;/strong&gt; Cyberchef, BabyWarmup, s3idc3rt&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Web:&lt;/strong&gt; ChatGPT Made Me Do It, thousandsoflightyears, KMA Labs Developer Portal, NO AI NO LIFE, DeepSeek Made Me Do It, DeepSeek Made Me Do It Revenge&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Forensics:&lt;/strong&gt; CCTV&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;pwn&#34;&gt;Pwn&lt;/h2&gt;&#xA;&lt;h3 id=&#34;cyberchef&#34;&gt;Cyberchef&lt;/h3&gt;&#xA;&lt;h4 id=&#34;program-behavior&#34;&gt;Program behavior&lt;/h4&gt;&#xA;&lt;p&gt;The program reads up to 1,023 characters from the flag file into the global buffer &lt;code&gt;::s1&lt;/code&gt;. If the flag is available, it prints the banner and supported encodings, then enters the encoding loop.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

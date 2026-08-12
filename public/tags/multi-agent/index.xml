@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Multi-Agent on KVV&#39;s blog</title>
+    <link>http://localhost:1313/tags/multi-agent/</link>
+    <description>Recent content in Multi-Agent on KVV&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 12 Jun 2026 00:30:00 +0700</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/multi-agent/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A Local-First Multi-Agent Framework for Evidence-Driven Web Penetration Testing</title>
+      <link>http://localhost:1313/posts/ai-in-pentesting/</link>
+      <pubDate>Fri, 12 Jun 2026 00:30:00 +0700</pubDate>
+      <guid>http://localhost:1313/posts/ai-in-pentesting/</guid>
+      <description>&lt;h2 id=&#34;abstract&#34;&gt;Abstract&lt;/h2&gt;&#xA;&lt;p&gt;The idea of giving a large language model a target and asking it to “perform a penetration test” is attractive but technically incomplete. A useful security assessment requires more than natural-language reasoning: it must preserve authorization boundaries, collect and normalize a large attack surface, select compatible tools, separate hypotheses from verified evidence, control intrusive operations, and retain a complete audit trail. An unconstrained language model provides none of these guarantees by itself.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

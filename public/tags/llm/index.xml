@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>LLM on KVV&#39;s blog</title>
+    <link>http://localhost:1313/tags/llm/</link>
+    <description>Recent content in LLM on KVV&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 10 Aug 2026 09:00:00 +0700</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/llm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Designing a Prompt-Injection Detection and Monitoring Pipeline for LLM Applications</title>
+      <link>http://localhost:1313/posts/prompt-injection-shield/</link>
+      <pubDate>Mon, 10 Aug 2026 09:00:00 +0700</pubDate>
+      <guid>http://localhost:1313/posts/prompt-injection-shield/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;&lt;strong&gt;Project status &amp;ndash; pre-implementation proposal.&lt;/strong&gt; This article documents a planned security pipeline, not a deployed product and not an evaluation report. Implementation is scheduled to begin on &lt;strong&gt;15 August 2026&lt;/strong&gt;. Architecture, thresholds, target metrics, diagrams, API contracts, and operational procedures below are design decisions to be tested and revised during implementation. No detection rate, latency, alert volume, or production security outcome is claimed yet.&lt;/p&gt;&#xA;&lt;/blockquote&gt;&#xA;&lt;h2 id=&#34;abstract&#34;&gt;Abstract&lt;/h2&gt;&#xA;&lt;p&gt;Large-language-model applications routinely combine developer instructions with lower-trust material: user questions, retrieved documents, websites, emails, tool output, comments, and uploaded files. Prompt injection exploits this composition problem by placing instructions in material that should have been treated as data. The effect can range from an irrelevant answer to system-prompt disclosure, unwanted retrieval, unsafe tool invocation, or attempted data exfiltration. The problem becomes more consequential in retrieval-augmented generation (RAG), GraphRAG, and agentic systems because untrusted content can influence a model that has access to external tools or sensitive context.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

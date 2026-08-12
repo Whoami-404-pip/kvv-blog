@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-us" data-theme="light">
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+<head>
     <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>
@@ -9,11 +9,7 @@
 
 
 
-<meta name="description" content="About This Site
-This site keeps the theme intact and moves all swap-friendly images into static/site-images/.
-What To Change
-
-Replace …" />
+<meta name="description" content="Vũ Khánh Vy is a cybersecurity student focused on pwnable, web security, and AI security." />
 
 
 
@@ -23,11 +19,7 @@ Replace …" />
 />
 <meta
   property="og:description"
-  content="About This Site
-This site keeps the theme intact and moves all swap-friendly images into static/site-images/.
-What To Change
-
-Replace …"
+  content="Vũ Khánh Vy is a cybersecurity student focused on pwnable, web security, and AI security."
 />
 <meta
   property="og:type"
@@ -44,11 +36,7 @@ Replace …"
 />
 <meta
   name="twitter:description"
-  content="About This Site
-This site keeps the theme intact and moves all swap-friendly images into static/site-images/.
-What To Change
-
-Replace …"
+  content="Vũ Khánh Vy is a cybersecurity student focused on pwnable, web security, and AI security."
 />
 
 
@@ -120,88 +108,105 @@ Replace …"
 
     <main>
         
-
-<div class="post-overlay active">
-    <div class="post-overlay-backdrop"></div>
-    <div class="post-overlay-content" style="position: relative; min-height: 100vh; padding: 0; transform: translateY(0);">
-        <div class="post-overlay-header">
-            <div class="post-overlay-title">
-                <a href="/" class="overlay-site-title">KVV&#39;s blog</a>
-            </div>
-            <button class="post-overlay-close" aria-label="Close post" onclick="window.location.href='/'">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="post-layout">
-        <article class="post-content">
-            <header class="post-header">
-                <div class="post-meta">
-                    <span class="post-date">0001.01.01</span>
-                    <div class="reading-time-post">
-                        <span class="coffee-cups">
-                            
-                            
-                            
-                            
-                            
-                                
-                            
-                            ☕
-                        </span>
-                        <span>1 min read</span>
-                    </div>
-                </div>
-                <h1 class="post-title">About</h1>
-                
-
-                
-            </header>
-            <div class="post-body">
-                <h1 id="about-this-site">About This Site</h1>
-<p>This site keeps the theme intact and moves all swap-friendly images into <code>static/site-images/</code>.</p>
-<h2 id="what-to-change">What To Change</h2>
-<ul>
-<li>Replace <code>static/site-images/profile.png</code> for the avatar</li>
-<li>Replace <code>static/site-images/hero.png</code> for shared banners</li>
-<li>Keep the filenames the same if you want the current config to keep working</li>
-</ul>
-<figure class="site-image">
-  <img src="/site-images/hero.png" alt="Workspace banner" loading="lazy" />
-  <figcaption>All shared image assets live in one folder.</figcaption>
-</figure>
-
-
-            </div>
-
-            
-            
-
-            
-            <nav class="post-navigation">
-                
-                <div class="nav-previous">
-                    <span class="nav-label">← Previous</span>
-                    <a href="http://localhost:1313/contact/" class="nav-title">Contact</a>
-                </div>
-                
-
-                
-                <div></div>
-                
-            </nav>
-        </article>
-
-        <aside class="sidebar">
-            <nav class="toc">
-                <h4>Contents</h4>
-                <div id="toc-content">
-                    
-                </div>
-            </nav>
-        </aside>
-        </div>
+<section class="about-page">
+  <aside class="about-profile">
+    <p class="about-kicker">/ whoami</p>
+    <div class="about-portrait-frame">
+      <img src="/site-images/profile.png" alt="Portrait of Vũ Khánh Vy" />
+      <span>KVV</span>
     </div>
-</div>
+
+    <div class="about-identity">
+      <h1>Vũ Khánh Vy</h1>
+      <p>Cybersecurity student &amp; CTF player</p>
+    </div>
+
+    <dl class="about-facts">
+      <div>
+        <dt>Age</dt>
+        <dd>20</dd>
+      </div>
+      <div>
+        <dt>School</dt>
+        <dd>Academy of Cryptography Techniques</dd>
+      </div>
+      <div>
+        <dt>Team</dt>
+        <dd>KMA Cyber Security Club · Pwnable</dd>
+      </div>
+    </dl>
+  </aside>
+
+  <div class="about-story">
+    <header class="about-intro">
+      <span class="about-section-number">01</span>
+      <div>
+        <p class="about-label">About me</p>
+        <h2>I break things to understand how they work.</h2>
+        <p>I am a cybersecurity student interested in vulnerability research, web pentesting, binary exploitation, and AI security. I enjoy turning difficult technical problems into reproducible exploits, clear notes, and practical lessons.</p>
+      </div>
+    </header>
+
+    <section class="about-focus" aria-labelledby="focus-title">
+      <div class="about-section-heading">
+        <span class="about-section-number">02</span>
+        <div>
+          <p class="about-label">Current focus</p>
+          <h2 id="focus-title">What I work on</h2>
+        </div>
+      </div>
+
+      <div class="about-focus-list">
+        <div>
+          <span>Web</span>
+          <p>Modern web vulnerabilities, request analysis, exploit validation, and technical reporting.</p>
+        </div>
+        <div>
+          <span>Pwnable</span>
+          <p>Stack and heap exploitation, ROP, SROP, FSOP, reverse engineering, and exploit development.</p>
+        </div>
+        <div>
+          <span>AI Security</span>
+          <p>Agent tool abuse, unsafe evaluation, command injection, MCP authorization, and parser inconsistencies.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-achievements" aria-labelledby="achievements-title">
+      <div class="about-section-heading">
+        <span class="about-section-number">03</span>
+        <div>
+          <p class="about-label">Milestones</p>
+          <h2 id="achievements-title">Selected achievements</h2>
+        </div>
+      </div>
+
+      <ol class="achievement-list">
+        <li>
+          <span class="achievement-year">2026</span>
+          <div>
+            <h3>Second Prize · KMACTF</h3>
+            <p>Solved Pwnable, Web Exploitation, and Forensics challenges.</p>
+          </div>
+        </li>
+        <li>
+          <span class="achievement-year">Global</span>
+          <div>
+            <h3>#156 · DreamHack Wargame</h3>
+            <p>Ranked #9 in Vietnam in the individual standings.</p>
+          </div>
+        </li>
+        <li>
+          <span class="achievement-year">2022</span>
+          <div>
+            <h3>Fourth Prize · AVSC</h3>
+            <p>Competition hosted by RMIT University.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+  </div>
+</section>
 
     </main>
 

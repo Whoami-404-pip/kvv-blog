@@ -1,13 +1,5 @@
 ---
 title: "Contact"
+description: "Get in touch with KVV by email, GitHub, or Discord."
+layout: "contact"
 ---
-
-# Contact
-
-Use this page for your real links once you personalize the site.
-
-- Email
-- GitHub
-- Mastodon
-
-The theme menu already links here, so no extra layout work is needed.

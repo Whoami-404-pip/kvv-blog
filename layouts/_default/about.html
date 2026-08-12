@@ -1,0 +1,101 @@
+{{ define "main" }}
+<section class="about-page">
+  <aside class="about-profile">
+    <p class="about-kicker">/ whoami</p>
+    <div class="about-portrait-frame">
+      <img src="{{ "/site-images/profile.png" | relURL }}" alt="Portrait of Vũ Khánh Vy" />
+      <span>KVV</span>
+    </div>
+
+    <div class="about-identity">
+      <h1>Vũ Khánh Vy</h1>
+      <p>Cybersecurity student &amp; CTF player</p>
+    </div>
+
+    <dl class="about-facts">
+      <div>
+        <dt>Age</dt>
+        <dd>20</dd>
+      </div>
+      <div>
+        <dt>School</dt>
+        <dd>Academy of Cryptography Techniques</dd>
+      </div>
+      <div>
+        <dt>Team</dt>
+        <dd>KMA Cyber Security Club · Pwnable</dd>
+      </div>
+    </dl>
+  </aside>
+
+  <div class="about-story">
+    <header class="about-intro">
+      <span class="about-section-number">01</span>
+      <div>
+        <p class="about-label">About me</p>
+        <h2>I break things to understand how they work.</h2>
+        <p>I am a cybersecurity student interested in vulnerability research, web pentesting, binary exploitation, and AI security. I enjoy turning difficult technical problems into reproducible exploits, clear notes, and practical lessons.</p>
+      </div>
+    </header>
+
+    <section class="about-focus" aria-labelledby="focus-title">
+      <div class="about-section-heading">
+        <span class="about-section-number">02</span>
+        <div>
+          <p class="about-label">Current focus</p>
+          <h2 id="focus-title">What I work on</h2>
+        </div>
+      </div>
+
+      <div class="about-focus-list">
+        <div>
+          <span>Web</span>
+          <p>Modern web vulnerabilities, request analysis, exploit validation, and technical reporting.</p>
+        </div>
+        <div>
+          <span>Pwnable</span>
+          <p>Stack and heap exploitation, ROP, SROP, FSOP, reverse engineering, and exploit development.</p>
+        </div>
+        <div>
+          <span>AI Security</span>
+          <p>Agent tool abuse, unsafe evaluation, command injection, MCP authorization, and parser inconsistencies.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-achievements" aria-labelledby="achievements-title">
+      <div class="about-section-heading">
+        <span class="about-section-number">03</span>
+        <div>
+          <p class="about-label">Milestones</p>
+          <h2 id="achievements-title">Selected achievements</h2>
+        </div>
+      </div>
+
+      <ol class="achievement-list">
+        <li>
+          <span class="achievement-year">2026</span>
+          <div>
+            <h3>Second Prize · KMACTF</h3>
+            <p>Solved Pwnable, Web Exploitation, and Forensics challenges.</p>
+          </div>
+        </li>
+        <li>
+          <span class="achievement-year">Global</span>
+          <div>
+            <h3>#156 · DreamHack Wargame</h3>
+            <p>Ranked #9 in Vietnam in the individual standings.</p>
+          </div>
+        </li>
+        <li>
+          <span class="achievement-year">2022</span>
+          <div>
+            <h3>Fourth Prize · AVSC</h3>
+            <p>Competition hosted by RMIT University.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+  </div>
+</section>
+{{ end }}

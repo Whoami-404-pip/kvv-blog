@@ -1,0 +1,74 @@
+{{ define "main" }}
+<section class="contact-page">
+  <div class="contact-profile">
+    <div class="contact-portrait-wrap">
+      <img class="contact-portrait" src="{{ "/site-images/profile.png" | relURL }}" alt="KVV profile portrait" />
+      <span class="contact-status" aria-label="Online">
+        <span></span> Online
+      </span>
+    </div>
+
+    <div class="contact-intro">
+      <p class="contact-eyebrow">/ contact</p>
+      <h1>Say hello<span>.</span></h1>
+      <p>CTFs, security research, or just a good conversation. My inbox is open.</p>
+    </div>
+  </div>
+
+  <div class="contact-directory">
+    <div class="contact-directory-header">
+      <span>Find me online</span>
+      <span>03 channels</span>
+    </div>
+
+    <div class="contact-list" aria-label="Contact methods">
+      <a class="contact-method contact-method-email" href="mailto:khnhvyvu207114@gmail.com">
+        <span class="contact-method-number">01</span>
+        <span class="contact-method-icon" aria-hidden="true"><i class="fas fa-envelope"></i></span>
+        <span class="contact-method-copy">
+          <span class="contact-method-label">Email</span>
+          <span class="contact-method-value">khnhvyvu207114@gmail.com</span>
+        </span>
+        <i class="fas fa-arrow-up-right-from-square contact-method-action" aria-hidden="true"></i>
+      </a>
+
+      <a class="contact-method contact-method-github" href="https://github.com/Whoami-404-pip" target="_blank" rel="noopener noreferrer">
+        <span class="contact-method-number">02</span>
+        <span class="contact-method-icon" aria-hidden="true"><i class="fab fa-github"></i></span>
+        <span class="contact-method-copy">
+          <span class="contact-method-label">GitHub</span>
+          <span class="contact-method-value">Whoami-404-pip</span>
+        </span>
+        <i class="fas fa-arrow-up-right-from-square contact-method-action" aria-hidden="true"></i>
+      </a>
+
+      <div class="contact-method contact-method-discord">
+        <span class="contact-method-number">03</span>
+        <span class="contact-method-icon" aria-hidden="true"><i class="fab fa-discord"></i></span>
+        <span class="contact-method-copy">
+          <span class="contact-method-label">Discord</span>
+          <span class="contact-method-value">kvv.modafinil.06</span>
+        </span>
+        <button class="contact-copy-button" type="button" data-copy="kvv.modafinil.06" aria-label="Copy Discord username" title="Copy Discord username">
+          <i class="far fa-copy" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll("[data-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(button.dataset.copy);
+      const icon = button.querySelector("i");
+      icon.className = "fas fa-check";
+      button.setAttribute("aria-label", "Discord username copied");
+      window.setTimeout(() => {
+        icon.className = "far fa-copy";
+        button.setAttribute("aria-label", "Copy Discord username");
+      }, 1600);
+    });
+  });
+</script>
+{{ end }}
